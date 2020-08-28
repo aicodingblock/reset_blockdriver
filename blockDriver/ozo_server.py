@@ -1,10 +1,5 @@
 import sys
-if sys.version_info>=(3,6,0):
-    # from ozolib import ozolib36
-    import ozolib36
-else:
-    # from ozolib import ozolib
-    import ozolib
+import ozolib
 import time
 import socket
 from threading import Thread
