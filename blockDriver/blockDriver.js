@@ -320,6 +320,20 @@ async function msg_executor(socket, msg){
 					}
 				});
 			}
+            if(msg.type == "digitalRead")
+            {
+                data = msg.data['data'];
+                var exec = require('child_process').exec;
+                cmd = "python ./digitalRead.py "+data;
+                exec(cmd,function(error, stdout, stderr) {
+                if(!stderr){
+                    socket.emit("receiveData",{Type:"ktaimk_get_digitalRead",Data:{ret:true,data:stdout}});
+                }
+                else{
+                    socket.emit("receiveData",{Type:"ktaimk_get_digitalRead",Data:{ret:true,data:-1}});
+                }
+                });
+            }
 			//M-Ozobot
 
 			if(msg.type == "maru_oconnect")
@@ -350,14 +364,14 @@ async function msg_executor(socket, msg){
 				ret = await execShellCommand(cmd);
 				console.log("result " + ret);
 				ret = ret.replace(/\n/g, "");
-				console.log("maru_oreadcolor_data " + ret);
+				//console.log("maru_oreadcolor_data " + ret);
 				if(ret =='True'){
 					ret = true;
-					console.log(ret);
+					//console.log(ret);
 				}
 				else if(ret == 'False'){
 					ret = false;
-					console.log(ret);
+					//console.log(ret);
 				}
 				socket.emit("receiveData",{Type:"maru_oreadcolor_data", Data:{color:ret}});
 				socket.emit("receiveData",{Type:"maru_oreadcolor_wait", Data:{wait:true}});			
