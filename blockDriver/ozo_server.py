@@ -22,6 +22,7 @@ log("server started")
 
 status="start"
 stopflag = 0
+currentname=""
 
 
 def t1(id,f,p1):
@@ -47,13 +48,12 @@ def t4(id,f,p1,p2,p3,p4):
     status = 'waiting'
     ret = f(p1,p2,p3,p4)
     status  = ret
-    log("T4 ended\n\r")
 
 def tz(id,degree,count,dir=0):
     global status,stopflag
     status = 'waiting'
     stopflag = 0
-    time = 300
+    time = 500
     if dir == 0:
         speed = 1000
     else:
@@ -64,13 +64,13 @@ def tz(id,degree,count,dir=0):
         bot1.turn(degree)
         if stopflag==1:       
             return True        
-        bot1.move(speed,speed,time)
+        bot1.move_z(speed,speed,time)
         if stopflag==1:        
             return True        
         bot1.turn(-degree)
         if stopflag==1:
             return True        
-        bot1.move(speed,speed,time) 
+        bot1.move_z(speed,speed,time) 
         if stopflag==1:
             return True        
     status = True
@@ -114,10 +114,10 @@ def td(id):
         for i in range(0,2):
             if stopflag==1:          
                 return True 
-            bot1.move(speed,speed,duration)
+            bot1.move_z(speed,speed,duration)
             if stopflag==1:         
                 return True            
-            bot1.move(-speed,-speed,duration)
+            bot1.move_z(-speed,-speed,duration)
             if stopflag==1:        
                 return True
             bot1.turn(30)
@@ -147,12 +147,21 @@ while True:
         param_cnt = len(com)
         log("com:{}, count:{}".format(com,param_cnt))
         if com[0]=='maru_oconnect':
-            if 'bot1' in locals():  #이미 연결된 로봇이 있으면 연결안함
+            if 'bot1' in locals() and com[1]==currentname:  #이미 연결된 로봇이 있으면 연결안함
                 if bot1.bisconnected() is True:
                     ret = "Already Connencted"
                 else:
                     del bot1
-            if 'bot1' not in locals():
+                    del ozo
+
+            if 'bot1' in locals() and com[1]!=currentname:
+                if bot1.isconnected() is True:
+                    ret1 = bot1.bdisconnect()
+                    if ret1 is False:
+                        del bot1
+                        del ozo
+
+                time.sleep(1)
                 ozo = ozolib.Ozo()
                 if param_cnt>=2:
                     robot = ozo.find(com[1])
@@ -160,6 +169,34 @@ while True:
                     robot = ozo.find()   
 
                 if robot is False:
+                    del ozo
+                    ret = "None"
+                else:
+                    devices = ozo.getrobots()
+                    log(robot)
+                    log("Detected MAC&Names : {}".format(devices))
+                    log("Selected MAC and Name : {}".format(robot))
+                    bot1 = ozolib.Command(robot)
+                    if bot1.bconnect() is False:
+                        del bot1
+                        del ozo
+                        ret = False
+                    else:
+                        if param_cnt>=2:
+                            currentname=com[1]
+                        log("Current Name:{}".format(currentname))
+                        ret = True
+
+            elif 'bot1' not in locals():
+                log("Positon 2")
+                ozo = ozolib.Ozo()
+                if param_cnt>=2:
+                    robot = ozo.find(com[1])
+                else:
+                    robot = ozo.find()   
+
+                if robot is False:
+                    del ozo
                     ret = "None"
                 else:
                     devices = ozo.getrobots()
@@ -171,22 +208,20 @@ while True:
                         del bot1
                         ret = False
                     else:
+                        if param_cnt>=2:
+                            currentname=com[1]
+                        log("Current Name:{}".format(currentname))
                         ret = True
 
         elif com[0]=='maru_odisconnect':
-            log("Disconnect 1")
-            if 'bot1' in locals():  #연결된 로봇이 있는 경우만 disconnect
-                log("Disconnect 2")                
+            if 'bot1' in locals():  #연결된 로봇이 있는 경우만 disconnect               
                 if bot1.isconnected() is True:
                     ret = bot1.bdisconnect()
-                    log("bot1.disconnected")
                     del bot1
-                else:
-                    log("Disconnect 3")                     
+                else:                   
                     del bot1
                     ret = True
             else:
-                log("Disconnect 4") 
                 ret = True
 
         elif com[0]=='maru_oisconnected':
@@ -331,9 +366,13 @@ while True:
 
         elif com[0]=='maru_ofrontled1':
             if 'bot1' not in locals():
-                ret = "Not Connected"  
+                ret = "Not Connected"
             elif param_cnt==5:                           
-                ret = bot1.bfrontled1(int(com[1]),int(com[2]),int(com[3]),int(com[4]))                              
+                ret = bot1.bfrontled1(int(com[1]),int(com[2]),int(com[3]),int(com[4]))              
+            elif param_cnt==16:                           
+                ret = bot1.bfrontled3(int(com[1]),int(com[2]),int(com[3]),int(com[4]),int(com[5]),
+                int(com[6]),int(com[7]),int(com[8]),int(com[9]),int(com[10]),int(com[11]),int(com[12]),
+                int(com[13]),int(com[14]),int(com[15]))                            
             else:
                 ret =  "Incorrect Parameters"        
 
@@ -466,6 +505,21 @@ while True:
                 ret=status                  
             else:
                 ret =  "Incorrect Parameters"  
+
+        # elif com[0]=='maru_ozigzag':
+        #     if 'bot1' not in locals():
+        #         ret = "Not Connected"                  
+        #     elif param_cnt==2:                           
+        #         # th_ozigzag=Thread(target=tz, args=(11,90,int(com[1])))
+        #         th_ozigzag=Thread(target=t2, args=(11, bot1.zigzag,90,int(com[1])))                
+        #         th_ozigzag.start()
+        #         ret=status                  
+        #     elif param_cnt==3: 
+        #         th_ozigzag=Thread(target=t3, args=(12,bot1.zigzag,90,int(com[1]),int(com[2])))
+        #         th_ozigzag.start()
+        #         ret=status                  
+        #     else:
+        #         ret =  "Incorrect Parameters"          
 
         elif com[0]=='maru_ocheck':
             if param_cnt==1:                           

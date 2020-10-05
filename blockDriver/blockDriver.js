@@ -160,7 +160,7 @@ io.sockets.on('connection', function(socket) {
 });
 
 var msg_type_list = ["led", "gpioMode", "gpioWrite",  "getDHT11_Temp", "getDHT11_Humidity", "setServo", "bh1750", "dmr", "dmstop", "dma", "setHumanoidMotion", "digitalWrite2", "analogRead", "connect", "disconnect", "move", "on_led", "off_led", "stop", "drive", "rainbow", "flashrainbow", "turnoff", "rotate", "zigzag", "play", "dance"]
-
+const M_TIMEOUT = 500
 async function msg_executor(socket, msg){
       		if(msg.type == "led")
 			{
@@ -345,6 +345,7 @@ async function msg_executor(socket, msg){
 				command = 'maru_oconnect '
 				cmd = "python3 ./ozocommand.py "+command+" "+data;
 				result = await execShellCommand(cmd);
+				result = result.replace(/\n/g, "");
 				socket.emit("receiveData",{Type:"maru_oconnect_wait", Data:{wait:result}});
 				console.log(result);				
 			}
@@ -413,7 +414,7 @@ async function msg_executor(socket, msg){
 					console.log("Result waiting...");
 					ozo_timer_id = setInterval(function(){
 						maruo_waiting_status_check(socket, "maru_omove1_wait")
-					}, 1000 );
+					}, M_TIMEOUT );
 				}
 				else{
 					socket.emit("receiveData",{Type:"maru_omove1_wait", Data:{wait:result}});
@@ -435,7 +436,7 @@ async function msg_executor(socket, msg){
 					console.log("Result waiting...");
 					ozo_timer_id = setInterval(function(){
 						maruo_waiting_status_check(socket, "maru_omove2_wait")
-					}, 1000 );
+					}, M_TIMEOUT );
 				}
 				else{
 					socket.emit("receiveData",{Type:"maru_omove2_wait", Data:{wait:result}});
@@ -456,7 +457,7 @@ async function msg_executor(socket, msg){
 					console.log("Result waiting...");
 					ozo_timer_id = setInterval(function(){
 						maruo_waiting_status_check(socket, "maru_omove3_wait")
-					}, 1000 );
+					}, M_TIMEOUT );
 				}
 				else{
 					socket.emit("receiveData",{Type:"maru_omove3_wait", Data:{wait:result}});
@@ -477,7 +478,7 @@ async function msg_executor(socket, msg){
 					console.log("Result waiting...");
 					ozo_timer_id = setInterval(function(){
 						maruo_waiting_status_check(socket, "maru_orotate1_wait")
-					}, 1000 );
+					}, M_TIMEOUT );
 				}
 				else{
 					socket.emit("receiveData",{Type:"maru_orotate1_wait", Data:{wait:result}});
@@ -498,7 +499,7 @@ async function msg_executor(socket, msg){
 					console.log("Result waiting...");
 					ozo_timer_id = setInterval(function(){
 						maruo_waiting_status_check(socket, "maru_orotate2_wait")
-					}, 1000 );
+					}, M_TIMEOUT );
 				}
 				else{
 					socket.emit("receiveData",{Type:"maru_orotate2_wait", Data:{wait:result}});
@@ -564,96 +565,15 @@ async function msg_executor(socket, msg){
 				led4 = msg.data['led4'];
 				led5 = msg.data['led5'];
 				//console.log(pos + ' ' + led1 + led2 + led3 + led4 + led5+ "/");
-				//pos = 0		//추가 구현 필요
+				//pos = 0
 				var total_led_info = [led1, led2, led3, led4, led5];
-				if (pos == 0){
-					i=0;
-					r = total_led_info[i][0];
-					g = total_led_info[i][1];
-					b = total_led_info[i][2];
-
-					param = r+' '+g+' '+b+' '+ '1';
-					console.log('ofrontled1 ' + param);
-					cmd = "python3 ./ozocommand.py "+command+param;				
-					result = await execShellCommand(cmd);
-
-					r = total_led_info[i+1][0];
-					g = total_led_info[i+1][1];
-					b = total_led_info[i+1][2];
-					param = r+' '+g+' '+b+' '+ 2;
-					console.log('ofrontled1 ' + param);
-					cmd = "python3 ./ozocommand.py "+command+param;				
-					result = await execShellCommand(cmd);
-					
-					r = total_led_info[i+2][0];
-					g = total_led_info[i+2][1];
-					b = total_led_info[i+2][2];
-					param = r+' '+g+' '+b+' '+ 3;
-					console.log('ofrontled1 ' + param);
-					cmd = "python3 ./ozocommand.py "+command+param;				
-					result = await execShellCommand(cmd);	
-
-					r = total_led_info[i+3][0];
-					g = total_led_info[i+3][1];
-					b = total_led_info[i+3][2];
-					param = r+' '+g+' '+b+' '+ 4;
-					console.log('ofrontled1 ' + param);
-					cmd = "python3 ./ozocommand.py "+command+param;				
-					result = await execShellCommand(cmd);
-					
-					r = total_led_info[i+4][0];
-					g = total_led_info[i+4][1];
-					b = total_led_info[i+4][2];
-					param = r+' '+g+' '+b+' '+ 5;
-					console.log('ofrontled1 ' + param);
-					cmd = "python3 ./ozocommand.py "+command+param;				
-					result = await execShellCommand(cmd);										
-				}
-				else if(pos == 1){
-					r = total_led_info[0][0];
-					g = total_led_info[0][1];
-					b = total_led_info[0][2];
-					param = r+' '+g+' '+b+' '+ 1;
-					console.log('ofrontled1 ' + param);
-					cmd = "python3 ./ozocommand.py "+command+param;				
-					result = await execShellCommand(cmd);
-				}
-				else if(pos == 2){
-					r = total_led_info[1][0];
-					g = total_led_info[1][1];
-					b = total_led_info[1][2];
-					param = r+' '+g+' '+b+' '+ 2; 
-					console.log('ofrontled1 ' + param);
-					cmd = "python3 ./ozocommand.py "+command+param;				
-					result = await execShellCommand(cmd);
-				}
-				else if(pos == 3){
-					r = total_led_info[2][0];
-					g = total_led_info[2][1];
-					b = total_led_info[2][2];
-					param = r+' '+g+' '+b+' '+ 3;
-					console.log('ofrontled1 ' + param);
-					cmd = "python3 ./ozocommand.py "+command+param;				
-					result = await execShellCommand(cmd);
-				}
-				else if(pos == 4){
-					r = total_led_info[3][0];
-					g = total_led_info[3][1];
-					b = total_led_info[3][2];
-					param = r+' '+g+' '+b+' '+ 4;
-					console.log('ofrontled1 ' + param);
-					cmd = "python3 ./ozocommand.py "+command+param;				
-					result = await execShellCommand(cmd);
-				}
-				else if(pos == 5){
-					r = total_led_info[4][0];
-					g = total_led_info[4][1];
-					b = total_led_info[4][2];
-					param = r+' '+g+' '+b+' '+ 5;
-					console.log('ofrontled1 ' + param);
-					cmd = "python3 ./ozocommand.py "+command+param;				
-					result = await execShellCommand(cmd);
-				}
+				param = ""
+				for(var i=0;i<5;i++) {
+					param += ' '+total_led_info[i][0]+' '+total_led_info[i][1]+' '+total_led_info[i][2];
+				};
+				cmd = "python3 ./ozocommand.py "+command+param;	
+				console.log('ofrontled1 : ' + cmd);
+				result = await execShellCommand(cmd);
 				socket.emit("receiveData",{Type:"maru_ofrontled1_wait", Data:{wait:result}});				
 			}	
 			if(msg.type == "maru_ofrontled2")
@@ -765,7 +685,7 @@ async function msg_executor(socket, msg){
 					console.log("Result waiting...");
 					ozo_timer_id = setInterval(function(){
 						maruo_waiting_status_check(socket, "maru_ogentone2_wait")
-					}, 1000 );
+					}, M_TIMEOUT );
 				}
 				else{
 					socket.emit("receiveData",{Type:"maru_ogentone2_wait", Data:{wait:result}});
@@ -785,7 +705,7 @@ async function msg_executor(socket, msg){
 					console.log("Result waiting...");
 					ozo_timer_id = setInterval(function(){
 						maruo_waiting_status_check(socket, "maru_orestnote_wait")
-					}, 1000 );
+					}, M_TIMEOUT );
 				}
 				else{
 					socket.emit("receiveData",{Type:"maru_orestnote_wait", Data:{wait:result}});
@@ -809,7 +729,7 @@ async function msg_executor(socket, msg){
 					console.log("Result waiting...");
 					ozo_timer_id = setInterval(function(){
 						maruo_waiting_status_check(socket, "maru_odance_wait")
-					}, 1000 );
+					}, M_TIMEOUT );
 				}
 				else{
 					socket.emit("receiveData",{Type:"maru_odance_wait", Data:{wait:result}});
@@ -838,7 +758,7 @@ async function msg_executor(socket, msg){
 					console.log("Result waiting...");
 					ozo_timer_id = setInterval(function(){
 						maruo_waiting_status_check(socket, "maru_oflashrainbow_wait")
-					}, 1000 );
+					}, M_TIMEOUT );
 				}
 				else{
 					socket.emit("receiveData",{Type:"maru_oflashrainbow_wait", Data:{wait:result}});
@@ -860,7 +780,7 @@ async function msg_executor(socket, msg){
 					console.log("Result waiting...");
 					ozo_timer_id = setInterval(function(){
 						maruo_waiting_status_check(socket, "maru_ozigzag_wait")
-					}, 1000 );
+					}, M_TIMEOUT );
 				}
 				else{
 					socket.emit("receiveData",{Type:"maru_ozigzag_wait", Data:{wait:result}});

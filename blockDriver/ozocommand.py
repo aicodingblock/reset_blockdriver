@@ -14,8 +14,11 @@ string = string[:-1]
 string.strip()    
 
 client_socket=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-client_socket.connect((HOST,PORT))
-
+try:
+    client_socket.connect((HOST,PORT))
+except:
+    print(repr("False"))
+    exit(1)
 client_socket.send(string.encode())
 data=client_socket.recv(1024)
 print(data.decode('utf-8'))
