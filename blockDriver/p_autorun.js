@@ -16,7 +16,7 @@ var clientKey = codingPack.clientKey;
     }
     console.log("launch!");
     const browser = await puppeteer.launch({
-        headless : true,
+        headless : false,
         devtools: false,
         ignoreHTTPSErrors: true,
 	//headless 모드일 경우 audio play 옵션설정이 필요.
