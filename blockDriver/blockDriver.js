@@ -273,6 +273,10 @@ async function msg_executor(socket, msg){
 				exec(cmd,function(error, stdout, stderr) {
 
 				});
+				cmd = "python ./dodam_dcmotorstop.py";
+				console.log('stop');
+				exec(cmd,function(error, stdout, stderr) {
+				});
 			}
 			if(msg.type == "dma")
 			{
@@ -306,6 +310,92 @@ async function msg_executor(socket, msg){
 
 				});
 			}
+			if(msg.type == "dodam_digitalWrite")
+			{
+				pin = msg.data['pin'];
+				data = msg.data['data'];
+
+				var exec = require('child_process').exec;
+				cmd = "python ./dodam_digitalWrite.py "+pin+" "+data;
+				exec(cmd,function(error, stdout, stderr) {
+				});
+			}
+			if(msg.type == "dodam_dma")
+			{
+				pin = msg.data['pin'];
+				angle = msg.data['angle'];
+				speed = msg.data['speed'];
+
+				var exec = require('child_process').exec;
+				cmd = "python ./dodam_servomotor_angle1.py "+pin+" "+angle+" "+speed;
+				console.log('dma');
+				exec(cmd,function(error, stdout, stderr) {
+				});
+			}
+			if(msg.type == "dodam_key")
+			{
+				key = msg.data['key'];
+			
+				var exec = require('child_process').exec;
+				cmd = "python ./dodam_key.py "+key;
+				console.log('key');
+				exec(cmd,function(error, stdout, stderr) {
+				});
+			}
+			if(msg.type == "dodam_dmr")
+			{
+				l1 = msg.data['l1'];
+				l2 = msg.data['l2'];
+				r1 = msg.data['r1'];
+				r2 = msg.data['r2'];
+
+
+				var exec = require('child_process').exec;
+				cmd = "python ./dodam_dcmotorspeed.py "+l1+" "+r1+" "+l2+" "+r2;
+
+				console.log('dmr');
+				exec(cmd,function(error, stdout, stderr) {
+				});
+			}
+			if(msg.type == "dodam_dmr1")
+			{
+				l1 = msg.data['l1'];
+				r1 = msg.data['r1'];
+
+				var exec = require('child_process').exec;
+				cmd = "python ./dodam_dcmotorspeed1.py "+l1+" "+r1;
+
+				exec(cmd,function(error, stdout, stderr) {
+				});
+			}
+			if(msg.type == "dodam_dmr2")
+			{
+				l2 = msg.data['l2'];
+				r2 = msg.data['r2'];
+
+		
+				var exec = require('child_process').exec;
+				cmd = "python ./dodam_dcmotorspeed2.py "+l2+" "+r2;
+				exec(cmd,function(error, stdout, stderr) {
+				});
+			}
+			if(msg.type == "dodam_dmstop")
+			{
+				var exec = require('child_process').exec;
+				cmd = "python ./dodam_dcmotorstop.py";
+				console.log('stop');
+				exec(cmd,function(error, stdout, stderr) {
+				});
+			}
+			if(msg.type == "dodam_remocon")
+			{
+
+				var exec = require('child_process').exec;
+				cmd = "python3 ./dodam_remocon.py 7 ";
+				result = await execShellCommand(cmd);
+				console.log('data = ' + result);
+				socket.emit("receiveData",{Type:"dodam_remocon_data",Data:{data:result}});
+			}	
 			if(msg.type == "analogRead")
 			{
 				data = msg.data['data'];
@@ -320,20 +410,46 @@ async function msg_executor(socket, msg){
 					}
 				});
 			}
-            if(msg.type == "digitalRead")
-            {
-                data = msg.data['data'];
-                var exec = require('child_process').exec;
-                cmd = "python ./digitalRead.py "+data;
-                exec(cmd,function(error, stdout, stderr) {
-                if(!stderr){
-                    socket.emit("receiveData",{Type:"ktaimk_get_digitalRead",Data:{ret:true,data:stdout}});
-                }
-                else{
-                    socket.emit("receiveData",{Type:"ktaimk_get_digitalRead",Data:{ret:true,data:-1}});
-                }
-                });
-            }
+			if(msg.type == "dodam_digitalRead")
+			{
+				data = msg.data['data'];
+				var exec = require('child_process').exec;
+				cmd = "python3 ./dodam_digitalRead.py "+data;
+				result = await execShellCommand(cmd);
+				console.log('data = ' + result);
+				socket.emit("receiveData",{Type:"dodam_digitalRead_data",Data:{data:result}});
+				api_result = true;
+				socket.emit("receiveData",{Type:"dodam_get_digital_data",Data:{ret:api_result }});
+			}
+			if(msg.type == "dodam_analogRead")
+			{
+				data = msg.data['data'];
+				var exec = require('child_process').exec;
+				cmd = "python3 ./dodam_analogRead.py "+data;
+				result = await execShellCommand(cmd);
+				console.log('data = ' + result);
+				socket.emit("receiveData",{Type:"dodam_analogRead_data",Data:{data:result}});
+				api_result = true;
+				socket.emit("receiveData",{Type:"dodam_get_analog_data",Data:{ret:api_result,data1:-1}});
+			}
+			if(msg.type == "digitalRead")
+            		{
+                			data = msg.data['data'];
+                			var exec = require('child_process').exec;
+					cmd = "python3 ./dodam_digitalRead.py "+data;
+					result = await execShellCommand(cmd);
+					console.log('data = ' + result);
+					socket.emit("receiveData",{Type:"ktaimk_get_digitalRead",Data:{ret:true,data:result}});
+                
+					//exec(cmd,function(error, stdout, stderr) {
+					//if(!stderr){
+					//    socket.emit("receiveData",{Type:"ktaimk_get_digitalRead",Data:{ret:true,data:stdout}});
+				       				// }
+					//else{
+					//    socket.emit("receiveData",{Type:"ktaimk_get_digitalRead",Data:{ret:true,data:-1}});
+								//}
+								//});
+	               }
 			//M-Ozobot
 
 			if(msg.type == "maru_oconnect")
