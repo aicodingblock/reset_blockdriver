@@ -436,7 +436,7 @@ async function msg_executor(socket, msg){
             		{
                 			data = msg.data['data'];
                 			var exec = require('child_process').exec;
-					cmd = "python3 ./digitalRead.py "+data;
+					cmd = "python ./digitalRead.py "+data;
 					result = await execShellCommand(cmd);
 					console.log('data = ' + result);
 					socket.emit("receiveData",{Type:"ktaimk_get_digitalRead",Data:{ret:true,data:result}});
