@@ -91,7 +91,7 @@ gpio.on('change',function (channel,value) {
 });
 
 let ozo_timer_id = 0;
-var io = require("socket.io").listen(3001);
+var io = require("socket.io")(3001);
 
 var exec = require('child_process').exec;
 cmd = "sudo python3 ./ozo_server.py";
