@@ -29,6 +29,7 @@ cp -r /home/pi/blockcoding/kt_ai_makers_kit_block_coding_driver/amk/* /home/pi/a
 if [ "${rpi_v4}" = "Raspberry Pi 4 Model B" ]; then
   echo "Copy Raspberry Pi 4 Model B BlockDriver... "
   cp /home/pi/blockcoding/kt_ai_makers_kit_block_coding_driver/blockDriver/bd_reset.js /home/pi/blockcoding/kt_ai_makers_kit_block_coding_driver/blockDriver/blockDriver.js
+fi
 
 mkdir key
 npm install
