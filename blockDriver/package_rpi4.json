@@ -17,7 +17,7 @@
     "puppeteer-core": "^10.0.0",
     "rpi-gpio": "2.1.7",
     "rpio": "2.4.2",
-    "socket.io": "^4.1.2",
+    "socket.io": "^2.1.1",
     "speaker": "0.5.3",
     "wav": "^1.0.2",
     "youtube-dl": "1.12.2"
