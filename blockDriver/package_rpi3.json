@@ -15,7 +15,7 @@
     "pi-servo": "^1.0.2",
     "rpi-gpio": "1.0.0",
     "rpio": "0.9.21",
-    "socket.io": "^2.4.",
+    "socket.io": "^2.4.0",
     "speaker": "0.4.1",
     "wav": "^1.0.2",
     "youtube-dl": "1.12.2",
