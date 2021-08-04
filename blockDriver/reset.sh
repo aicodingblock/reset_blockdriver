@@ -16,6 +16,7 @@ case "${board_model}" in
   *"$rpi_v4"*)
      echo "Find Board Model: Raspberry Pi 4"
      cp /home/pi/blockcoding/kt_ai_makers_kit_block_coding_driver/blockDriver/package_rpi4.json /home/pi/blockcoding/kt_ai_makers_kit_block_coding_driver/blockDriver/package.json
+     cp /home/pi/blockcoding/kt_ai_makers_kit_block_coding_driver/blockDriver/ozolib3_7.so /home/pi/blockcoding/kt_ai_makers_kit_block_coding_driver/blockDriver/ozolib.so
      #cp /home/pi/blockcoding/kt_ai_makers_kit_block_coding_driver/blockDriver/bd_reset.js /home/pi/blockcoding/kt_ai_makers_kit_block_coding_driver/blockDriver/blockDriver.js
      ;;
   *"$rpi_v3"*)
