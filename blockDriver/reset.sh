@@ -10,7 +10,6 @@ cd /home/pi/blockcoding
 sudo rm -rf kt_ai_makers_kit_block_coding_driver/
 git clone -b release --single-branch https://github.com/aicodingblock/reset_blockdriver.git kt_ai_makers_kit_block_coding_driver
 cd kt_ai_makers_kit_block_coding_driver/blockDriver/
-check
 
 case "${board_model}" in
   *"$rpi_v4"*)
