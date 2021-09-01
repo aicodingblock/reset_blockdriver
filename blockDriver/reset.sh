@@ -30,3 +30,13 @@ cp -r /home/pi/blockcoding/kt_ai_makers_kit_block_coding_driver/amk/* /home/pi/a
 
 mkdir key
 npm install
+
+cd /home/pi
+sudo apt-get install -y autoconf
+git clone https://github.com/sarfata/pi-blaster.git
+cd /home/pi/pi-blaster/
+./autogen.sh
+./configure
+make
+sudo ./pi-blaster
+cd /home/pi/blockcoding/kt_ai_makers_kit_block_coding_driver/blockDriver/

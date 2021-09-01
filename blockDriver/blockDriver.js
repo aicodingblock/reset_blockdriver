@@ -86,7 +86,26 @@ gpio.on('change',function (channel,value) {
 			io.sockets.emit("receiveData",{Type:"ktaimk_button_push",Data:{ret:true}});
 			//return;
 	}
-
+	if (typeof value === "boolean")
+	{
+		console.log(" Boolean Type Vaule --- gpio Read Pin:" + channel + " Value : " + value);
+	}
+	else if(typeof value === "number"){
+		console.log(" Number Type Value gpio Read Pin:" + channel + " Value : " + value);
+		value = value.toString();
+	}
+	else if(typeof value === "string"){
+		console.log(" String Type Vaule --- gpio Read Pin:" + channel + " Value : " + value);
+		
+	}
+	else if(value === null){
+		console.log(" gpio Read Data Empty..... --- gpio Read Pin:" + channel + " Value : " + value);
+		
+	}
+	else{
+		console.log(" NaN Type Value ---- gpio Read Pin:" + channel + " Value : " + value);
+	}
+	
 	io.sockets.emit("receiveData",{Type:"ktaimk_gpio_data",Data:{pin:channel,value:value}});
 });
 
@@ -98,6 +117,9 @@ cmd = "sudo python3 ./ozo_server.py";
 exec(cmd,function(error, stdout, stderr) {
 });
 
+cmd_servo = "cd /home/pi/pi-blaster/ && sudo ./pi-blaster";
+exec(cmd_servo, function(error, stdout, stderr) {
+});
 var device_msg_list = new Array();
 class Mutex {
 	constructor() {
@@ -205,16 +227,22 @@ async function msg_executor(socket, msg){
 					};
 				});
 			}
-			
+			if(msg.type == "ktaimk_gpio_data")
+			{
+				console.log("gpio read:"+pin);
+			}
 			if(msg.type == "getDHT11_Temp")
 			{
 				var gpin = pin2bcm[msg.data["pin"]];
-				sensor.read(11,gpin,function(err,temperature,humidity){
-					if(!err){
-						//console.log('temp: ' + temperature.toFixed(1)+'°C, ' + 'humidity: '+humidity.toFixed(1) + '%');
-						socket.emit("receiveData",{Type:"ktaimk_get_dht11_temp_data",Data:{ret:true,temp:temperature.toFixed(1),pin:msg.data["pin"]}});
+				var result = sensor.initialize(11, gpin);
+				var readout = sensor.read();
+				if(result){
+						console.log('temp: ' + readout.temperature.toFixed(1)+'°C, ' + 'humidity: '+readout.humidity.toFixed(1) + '%');
+						socket.emit("receiveData",{Type:"ktaimk_get_dht11_temp_data",Data:{ret:true,temp:readout.temperature.toFixed(1),pin:msg.data["pin"]}});
 					}
-				})
+				else{
+					console.warn('Failed to initialize DHT11 sensor');
+				}
 			}
 			if(msg.type == "getDHT11_Humidity")
 			{
@@ -1147,6 +1175,7 @@ function startQueryVoice(){
 	console.log("Start DSS");
 	mode=3;
 }
+
 
 //for devkey
 var uploadDir = __dirname+"/key/";
