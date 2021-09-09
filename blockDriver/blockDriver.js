@@ -247,12 +247,15 @@ async function msg_executor(socket, msg){
 			if(msg.type == "getDHT11_Humidity")
 			{
 				var gpin = pin2bcm[msg.data["pin"]];
-				sensor.read(11,gpin,function(err,temperature,humidity){
-					if(!err){
-						//console.log('temp: ' + temperature.toFixed(1)+'°C, ' + 'humidity: '+humidity.toFixed(1) + '%');
-						socket.emit("receiveData",{Type:"ktaimk_get_dht11_humidity_data",Data:{ret:true,humidity:humidity.toFixed(1),pin:msg.data["pin"]}});
+				var result = sensor.initialize(11, gpin);
+				var readout = sensor.read();
+				if(result){
+						console.log('temp: ' + readout.temperature.toFixed(1)+'°C, ' + 'humidity: '+readout.humidity.toFixed(1) + '%');
+						socket.emit("receiveData",{Type:"ktaimk_get_dht11_humidity_data",Data:{ret:true,humidity:readout.humidity.toFixed(1),pin:msg.data["pin"]}});
 					}
-				})
+				else{
+					console.warn('Failed to initialize DHT11 sensor');
+				}
 			}
 			if(msg.type == "setServo")
 			{
