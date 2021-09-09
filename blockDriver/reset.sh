@@ -40,3 +40,4 @@ cd /home/pi/pi-blaster/
 make
 sudo ./pi-blaster
 cd /home/pi/blockcoding/kt_ai_makers_kit_block_coding_driver/blockDriver/
+sudo reboot
