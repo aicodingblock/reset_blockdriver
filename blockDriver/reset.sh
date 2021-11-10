@@ -13,20 +13,22 @@ echo $board_model
 
 # check nodejs upgrade
 reinstall_nodejs() {
-    node_version=`node --version || true`
+    node_version=`node --version 2>/dev/null`
     echo "node=$node_version"
     if echo "$node_version" | egrep -q '^v14.'
     then
-        echo "nodejs version ok. (${node_version})"
+        echo "nodejs version check ok"
         return
     fi
-    echo "nodejs upgrade required.(current version is ${node_version})"
+    echo "nodejs upgrade required"
     echo "start nodejs reinstall"
     sudo apt purge -y nodejs nodejs.*
     sudo rm -f /etc/apt/sources.list.d/nodesource.list /usr/share/keyrings/nodesource.gpg
+    sudo apt -y update
     curl -sSL https://deb.nodesource.com/setup_14.x | sudo bash -
     sudo apt install -y nodejs
     sudo npm install -g yarn
+    echo "nodejs install finished"
 }
 
 reinstall_nodejs
@@ -59,6 +61,8 @@ npm install
 
 cd /home/pi
 sudo apt-get install -y autoconf
+
+rm -rf /home/pi/pi-blaster
 git clone https://github.com/sarfata/pi-blaster.git
 cd /home/pi/pi-blaster/
 ./autogen.sh
