@@ -52,9 +52,13 @@ case "${board_model}" in
      ;;
 esac
 
+# chown pi
+find ${WORK} -user root -exec chown -R pi:pi {} \;
+
 sudo cp -r ${WORK}/blockDriver/etc/desktop/* /home/pi/Desktop/
 sudo chown -R pi:pi ${WORK}/amk /home/pi/Desktop/
-cp -r ${WORK}/amk/* /home/pi/ai-makers-kit/python3/
+sudo cp -r ${WORK}/amk/* /home/pi/ai-makers-kit/python3/
+find /home/pi/ai-makers-kit/python3 -user root -exec chown -R pi:pi {} \;
 
 mkdir key
 npm install
