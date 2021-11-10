@@ -19,13 +19,14 @@ reinstall_nodejs() {
     then
         echo "nodejs version ok. (${node_version})"
         return
-    fi  
+    fi
     echo "nodejs upgrade required.(current version is ${node_version})"
     echo "start nodejs reinstall"
     sudo apt purge -y nodejs nodejs.*
     sudo rm -f /etc/apt/sources.list.d/nodesource.list /usr/share/keyrings/nodesource.gpg
     curl -sSL https://deb.nodesource.com/setup_14.x | sudo bash -
     sudo apt install -y nodejs
+    sudo npm install -g yarn
 }
 
 reinstall_nodejs
