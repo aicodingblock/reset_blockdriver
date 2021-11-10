@@ -6,6 +6,25 @@ rpi_v4="Raspberry Pi 4 Model B"
 board_model=$(cat /proc/device-tree/model)
 echo $board_model
 
+# check nodejs upgrade
+reinstall_nodejs() {
+    node_version=`node --version || true`
+    echo "node=$node_version"
+    if echo "$node_version" | egrep -q '^v14.'
+    then
+        echo "nodejs version ok. (${node_version})"
+        return
+    fi  
+    echo "nodejs upgrade required.(current version is ${node_version})"
+    echo "start nodejs reinstall"
+    sudo apt purge -y nodejs nodejs.*
+    sudo rm -f /etc/apt/sources.list.d/nodesource.list /usr/share/keyrings/nodesource.gpg
+    curl -sSL https://deb.nodesource.com/setup_14.x | sudo bash -
+    sudo apt install -y nodejs
+}
+
+reinstall_nodejs
+
 cd /home/pi/blockcoding
 sudo rm -rf kt_ai_makers_kit_block_coding_driver/
 git clone -b release --single-branch https://github.com/aicodingblock/reset_blockdriver.git kt_ai_makers_kit_block_coding_driver
