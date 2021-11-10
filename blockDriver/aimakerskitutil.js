@@ -4,8 +4,9 @@ const protoLoader = require('@grpc/proto-loader');
 const grpcLibrary = require('@grpc/grpc-js');
 const fs = require('fs');
 
+
 function getTimeStamp() {
-    return dateFormat(new Date(), 'yyyymmddHHmmssL');
+    return dateFormat(new Date(), 'yyyymmddHHMMssL');
 };
 
 function createSignature(id, timestamp, secret) {
