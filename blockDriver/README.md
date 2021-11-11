@@ -6,7 +6,7 @@ GiGA Genie AI Makers Kit의 node.js 샘플 입니다.
 	$ npm install
 	$ sudo apt-get install mplayer
 
-### 파일 내역
+### 파일 목록
 
     ktkws.node			: KWS node.js 모듈 
     aimakerskitutil.js		: ai-makers-kit node.js utility

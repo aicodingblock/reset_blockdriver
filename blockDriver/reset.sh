@@ -27,7 +27,7 @@ reinstall_nodejs() {
     sudo apt -y update
     curl -sSL https://deb.nodesource.com/setup_14.x | sudo bash -
     sudo apt install -y nodejs
-    sudo npm install -g yarn
+    npm install -g yarn
     echo "nodejs install finished"
 }
 
