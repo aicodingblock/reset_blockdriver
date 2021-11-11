@@ -4,14 +4,12 @@ const DEBUG = config.debug
 class LegacyDeviceController {
     _registry = {}
 
-    _socket = undefined
     _gpio = undefined
     _sensor = undefined
 
     constructor() {
     }
 
-    setSocket(socket) { this._socket = socket }
     setGpio(gpio) { this._gpio = gpio }
     setSensor(sensor) { this._sensor = sensor }
 
@@ -41,16 +39,11 @@ class LegacyDeviceController {
 
     /**
      *
+     * @param {*} sock socket.io socket
      * @param {*} message
      * @returns {boolean} 메시지를 처리했으면 true를 리턴
      */
-    handle = async (message) => {
-        const sock = this._socket
-        if (!sock) {
-            console.info('websocket is null')
-            return false
-        }
-
+    handle = async (sock, message) => {
         const type = message.type
         if (typeof type !== 'string') {
             console.warn('unknown message:', message)
