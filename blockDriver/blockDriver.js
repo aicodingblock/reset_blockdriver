@@ -1,5 +1,4 @@
 const http = require('http')
-const fs = require('fs')
 const { spawn, exec } = require('child_process')
 const gpio = require('rpi-gpio')
 const { program } = require('commander')
@@ -66,7 +65,6 @@ legacyDeviceController.setSensor(sensor)
 io.sockets.on('connection', function (socket) {
     console.log('connect success')
 
-    legacyDeviceController.setSocket(socket)
     legacyDeviceController.setGpio(gpio)
     legacyDeviceController.setSensor(sensor)
 
