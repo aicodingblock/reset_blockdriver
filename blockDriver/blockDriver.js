@@ -1,7 +1,5 @@
 const http = require('http')
-const fs = require('fs')
 const { spawn, exec } = require('child_process')
-const aikit = require('./aimakerskitutil')
 const gpio = require('rpi-gpio')
 const { program } = require('commander')
 const sensor = require('node-dht-sensor')
@@ -9,11 +7,8 @@ const sensor = require('node-dht-sensor')
 const { execQuietlyAsync } = require('./lib-block-driver/process-utils')
 const { createWebServer } = require('./lib-block-driver/createWebServer')
 const { createLegacyDeviceController } = require('./lib-block-driver/createLegacyDeviceController')
+const { DeviceControllerV2 } = requiest('./lib-block-driver/DeviceControllerV2')
 
-/**
- * 기존 방식의 디바이스 컨트롤러
- */
-const legacyDeviceController = createLegacyDeviceController()
 
 const programArg = program
     .version('0.1')
@@ -27,18 +22,8 @@ if (!programArg.autorun) {
     console.log('disable stop python')
 }
 
-const json_path = './key/clientKey.json'
-const proto_path = '../data/gigagenieRPC.proto'
 
 let hasKey = false
-if (fs.existsSync(json_path)) {
-    // Do something
-    hasKey = true
-    aikit.initializeJson(json_path, proto_path)
-} else {
-    // 브라우저에 알림 처리
-    // 키파일이 등록되지 않음.
-}
 
 //기본 GPIO 설정
 gpio.setup(29, gpio.DIR_IN, gpio.EDGE_BOTH) //버튼 핀은 입력으로
@@ -75,10 +60,16 @@ const io = require('socket.io')(3001, {
 
 execQuietlyAsync('sudo python3 ./ozo_server.py')
 execQuietlyAsync('cd /home/pi/pi-blaster/ && sudo ./pi-blaster')
+
+const legacyDeviceController = createLegacyDeviceController()
+legacyDeviceController.setGpio(gpio)
+legacyDeviceController.setSensor(sensor)
+
+const deviceControllerV2 = new DeviceControllerV2()
+
 io.sockets.on('connection', function (socket) {
     console.log('connect success')
 
-    legacyDeviceController.setSocket(socket)
     legacyDeviceController.setGpio(gpio)
     legacyDeviceController.setSensor(sensor)
 
@@ -107,9 +98,15 @@ io.sockets.on('connection', function (socket) {
         }, 1000)
     })
 
+    socket.on('deviceCtlMsg_v2', async function (msg) {
+        console.log('deviceCtlMsg_v2', msg)
+        deviceControllerV2.handle(socket, msg)
+    })
+
+
     socket.on('deviceCtlMsg', async function (msg) {
         console.log('deviceCtlMsg', msg)
-        const handled = legacyDeviceController.handle(msg)
+        const handled = legacyDeviceController.handle(socket, msg)
         if (!handled) {
             msg_executor(socket, msg)
         }
