@@ -5,7 +5,8 @@
     "dev": "node blockDriver"
   },
   "dependencies": {
-    "@aimk/hw-proto": "https://github.com/ktaicoder/hw-proto.git",
+    "@aimk/hw-control": "https://github.com/ktaicoder/hw-control.git#release",
+    "@aimk/hw-proto": "https://github.com/ktaicoder/hw-proto.git#release",
     "@grpc/grpc-js": "^1.4.4",
     "@grpc/proto-loader": "^0.6.2",
     "async": "^3.2.0",
@@ -23,6 +24,7 @@
     "puppeteer-core": "^10.0.0",
     "rpi-gpio": "2.1.7",
     "rpio": "2.4.2",
+    "rxjs": "^7.4.0",
     "serialport": "^9.2.5",
     "socket.io": "^2.4.0",
     "speaker": "0.5.3",

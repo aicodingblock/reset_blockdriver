@@ -7,7 +7,7 @@ const sensor = require('node-dht-sensor')
 const { execQuietlyAsync } = require('./lib-block-driver/process-utils')
 const { createWebServer } = require('./lib-block-driver/createWebServer')
 const { createLegacyDeviceController } = require('./lib-block-driver/createLegacyDeviceController')
-const { DeviceControllerV2 } = requiest('./lib-block-driver/DeviceControllerV2')
+const { DeviceControllerV2 } = require('./lib-block-driver/DeviceControllerV2')
 
 
 const programArg = program
