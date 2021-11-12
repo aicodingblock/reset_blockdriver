@@ -7,6 +7,8 @@ const sensor = require('node-dht-sensor')
 const { execQuietlyAsync } = require('./lib-block-driver/process-utils')
 const { createWebServer } = require('./lib-block-driver/createWebServer')
 const { createLegacyDeviceController } = require('./lib-block-driver/createLegacyDeviceController')
+const { DeviceControllerV2 } = requiest('./lib-block-driver/DeviceControllerV2')
+
 
 const programArg = program
     .version('0.1')
@@ -62,6 +64,9 @@ execQuietlyAsync('cd /home/pi/pi-blaster/ && sudo ./pi-blaster')
 const legacyDeviceController = createLegacyDeviceController()
 legacyDeviceController.setGpio(gpio)
 legacyDeviceController.setSensor(sensor)
+
+const deviceControllerV2 = new DeviceControllerV2()
+
 io.sockets.on('connection', function (socket) {
     console.log('connect success')
 
@@ -92,6 +97,12 @@ io.sockets.on('connection', function (socket) {
             process.exit()
         }, 1000)
     })
+
+    socket.on('deviceCtlMsg_v2', async function (msg) {
+        console.log('deviceCtlMsg_v2', msg)
+        deviceControllerV2.handle(socket, msg)
+    })
+
 
     socket.on('deviceCtlMsg', async function (msg) {
         console.log('deviceCtlMsg', msg)

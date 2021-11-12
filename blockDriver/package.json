@@ -5,6 +5,7 @@
     "dev": "node blockDriver"
   },
   "dependencies": {
+    "@aimk/hw-proto": "https://github.com/ktaicoder/hw-proto.git",
     "@grpc/grpc-js": "^1.4.4",
     "@grpc/proto-loader": "^0.6.2",
     "async": "^3.2.0",
@@ -33,7 +34,9 @@
   "directories": {
     "lib": "lib"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "socket.io-client": "^2.1.1"
+  },
   "author": "",
   "license": "ISC"
 }
