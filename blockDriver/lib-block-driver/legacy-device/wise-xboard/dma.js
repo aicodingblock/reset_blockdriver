@@ -1,4 +1,4 @@
-const { execQuietlyAsync } = require("../../../lib-block-driver/process-utils")
+const { execQuietlyAsync } = require("../../process-utils")
 
 async function dma(socket, msg, extra) {
     // 기존에 오타로 통신하고 있었음, angel

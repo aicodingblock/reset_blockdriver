@@ -1,4 +1,4 @@
-const { execQuietlyAsync } = require("../../../lib-block-driver/process-utils")
+const { execQuietlyAsync } = require("../../process-utils")
 
 async function dodam_dma(socket, msg, extra) {
     const { pin, angle, speed } = msg.data ?? {}

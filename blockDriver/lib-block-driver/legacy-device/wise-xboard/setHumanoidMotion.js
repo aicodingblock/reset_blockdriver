@@ -1,4 +1,4 @@
-const { execQuietlyAsync } = require("../../../lib-block-driver/process-utils")
+const { execQuietlyAsync } = require("../../process-utils")
 
 async function setHumanoidMotion(socket, msg, extra) {
     const { data } = msg.data ?? {}

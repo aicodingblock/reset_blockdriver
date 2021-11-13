@@ -1,4 +1,4 @@
-const { execQuietlyAsync } = require("../../../lib-block-driver/process-utils")
+const { execQuietlyAsync } = require("../../process-utils")
 
 async function dodam_digitalWrite(socket, msg, extra) {
     const { pin, data } = msg.data ?? {}
