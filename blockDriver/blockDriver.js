@@ -3,12 +3,16 @@ const { spawn, exec } = require('child_process')
 const gpio = require('rpi-gpio')
 const { program } = require('commander')
 const sensor = require('node-dht-sensor')
+const lodash = require('lodash')
 
 const { execQuietlyAsync } = require('./lib-block-driver/process-utils')
 const { createWebServer } = require('./lib-block-driver/createWebServer')
 const { createLegacyDeviceController } = require('./lib-block-driver/createLegacyDeviceController')
 const { DeviceControllerV2 } = require('./lib-block-driver/DeviceControllerV2')
+const { createSocketIoServer } = require('./lib-block-driver/createSocketIoServer')
 
+const DEVICE_CTL_REQUEST_V2 = 'deviceCtlMsg_v2:request'
+const DEVICE_CTL_RESPONSE_V2 = 'deviceCtlMsg_v2:response'
 
 const programArg = program
     .version('0.1')
@@ -22,6 +26,7 @@ if (!programArg.autorun) {
     console.log('disable stop python')
 }
 
+const io = createSocketIoServer()
 
 let hasKey = false
 
@@ -55,20 +60,57 @@ gpio.on('change', function (channel, value) {
     io.sockets.emit('receiveData', { Type: 'ktaimk_gpio_data', Data: { pin: channel, value } })
 })
 
-const io = require('socket.io')(3001, {
+// pi-blaster process kill
+function killPiBlaster() {
+    return execQuietlyAsync(`sudo pkill pi-blaster`)
+}
+
+// ozo server process kill
+function killOzoServer() {
+    return execQuietlyAsync(`ps -ef | grep "python3 ./ozo_server" | grep -v grep | awk '{print $2}' | xargs sudo kill -9 2> /dev/null`)
+}
+
+// restart pi-blaster
+killPiBlaster().then(() => {
+    execQuietlyAsync('cd /home/pi/pi-blaster/ && sudo ./pi-blaster')
 })
 
-execQuietlyAsync('sudo python3 ./ozo_server.py')
-execQuietlyAsync('cd /home/pi/pi-blaster/ && sudo ./pi-blaster')
+// restart ozo-server
+killOzoServer().then(() => {
+    execQuietlyAsync('sudo python3 ./ozo_server.py')
+})
 
+// 레거시 디바이스 제어 핸들러
 const legacyDeviceController = createLegacyDeviceController()
 legacyDeviceController.setGpio(gpio)
 legacyDeviceController.setSensor(sensor)
 
+
+// V2 디바이스 제어 핸들러
 const deviceControllerV2 = new DeviceControllerV2()
 
-io.sockets.on('connection', function (socket) {
-    console.log('connect success')
+const clientSockets = {}
+io.on('connection', function (socket) {
+    console.log('connect success', socket.id, 'totalClients=', lodash.keys(clientSockets).length)
+
+    if (clientSockets[socket.id]) {
+        console.log('already connected', socket.id)
+        return
+    }
+
+    console.log('new connection', socket.id)
+    clientSockets[socket.id] = socket
+
+    socket.on('disconnect', async function (reason) {
+        console.log('on disconnect', reason)
+        delete clientSockets[socket.id]
+
+        // 접속자가 없을때 리소스를 닫는다
+        if (Object.keys(clientSockets).length === 0) {
+            deviceControllerV2.closeResources()
+        }
+    })
+
 
     legacyDeviceController.setGpio(gpio)
     legacyDeviceController.setSensor(sensor)
@@ -98,12 +140,13 @@ io.sockets.on('connection', function (socket) {
         }, 1000)
     })
 
-    socket.on('deviceCtlMsg_v2', async function (msg) {
-        console.log('deviceCtlMsg_v2', msg)
+    // V2 디바이스 제어 핸들러
+    socket.on(DEVICE_CTL_REQUEST_V2, async function (msg) {
+        console.log(DEVICE_CTL_REQUEST_V2, msg)
         deviceControllerV2.handle(socket, msg)
     })
 
-
+    // 레거시 디바이스 제어 핸들러
     socket.on('deviceCtlMsg', async function (msg) {
         console.log('deviceCtlMsg', msg)
         const handled = legacyDeviceController.handle(socket, msg)
@@ -113,12 +156,18 @@ io.sockets.on('connection', function (socket) {
     })
 })
 
+io.on('disconnect', function (arg) {
+    console.log('on disconnect', arg)
+})
 
 async function msg_executor(socket, msg) {
     if (msg.type == 'ktaimk_gpio_data') {
         console.log('gpio read:' + pin)
     }
 }
+
+// socket io server start
+io.listen(3001)
 
 // for devkey
 const uploadDir = __dirname + '/key/'
@@ -127,3 +176,7 @@ http.createServer(app).listen(3002, function () {
     console.log('http server start')
 })
 
+process.on('beforeExit', () => {
+    killPiBlaster()
+    killOzoServer()
+})

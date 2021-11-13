@@ -6,7 +6,7 @@ function debugResult(error, stdout, stderr) {
     if (!DEBUG) return
 
     if (error) {
-        console.log(`${process.cwd()} $ error=`, error)
+        console.log(`${process.cwd()} $ error=`, error.message)
         return
     }
 
