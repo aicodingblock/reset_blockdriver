@@ -1,9 +1,11 @@
 const { exec } = require('child_process')
+const { pythonWise } = require('./util')
 
 async function analogRead(socket, msg, extra) {
     const { data } = msg.data ?? {}
 
-    const cmd = 'python ./analogRead.py ' + data
+    // const cmd = 'python ./analogRead.py ' + data
+    const cmd = pythonWise('analogRead.py', data)
     exec(cmd, function (error, stdout, stderr) {
         if (!stderr) {
             socket.emit('receiveData', {

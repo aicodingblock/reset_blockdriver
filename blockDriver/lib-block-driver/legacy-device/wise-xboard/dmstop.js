@@ -1,8 +1,9 @@
 const { execQuietlyAsync } = require("../../process-utils")
+const { pythonWise } = require("./util")
 
 async function dmstop(socket, msg, extra) {
-    await execQuietlyAsync('python ./dcmotorstop.py')
-    await execQuietlyAsync('python ./dodam_dcmotorstop.py')
+    await execQuietlyAsync(pythonWise('dcmotorstop.py'))
+    await execQuietlyAsync(pythonWise('dodam_dcmotorstop.py'))
 }
 
 module.exports = { dmstop }
