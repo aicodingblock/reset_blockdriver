@@ -1,8 +1,10 @@
+const { Server } = require('socket.io')
 function createSocketIoServer() {
-    const io = require('socket.io')({
+    const io = new Server({
         cors: {
+            // origin: ['https://aimk.jjfive.net', 'https://aicodingblock.kt.co.kr'],
             origin: '*',
-            // methods: ["GET", "POST"]
+            methods: ["GET", "POST"]
         },
     })
 

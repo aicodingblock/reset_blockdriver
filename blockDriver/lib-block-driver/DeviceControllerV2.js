@@ -14,12 +14,16 @@ Object.entries(HwRegistry).forEach(([hwId, hw]) => {
     registerHw(hwId, hw.info, hw.operator, hw.control())
 })
 
-console.log("=======================")
-console.log(HW_REGISTRY)
-console.log("------------------------")
-function sendError(socket, err) {
+if (DEBUG) {
+    console.log("=======================")
+    console.log(HW_REGISTRY)
+    console.log("------------------------")
+}
+
+
+function sendError(socket, requestId, err) {
     console.log(err)
-    if (socket.isOpen) {
+    if (socket.connected || socket.isOpen) {
         socket.send({ requestId, success: false, error: err.message })
     } else {
         console.log('cannot response, because web socket disconnect')
@@ -68,36 +72,108 @@ class HwControlManager {
         const sp = this._serialPortStore.getOrCreate(hwId)
         if (!sp) {
             console.warn('_createSerialPort fail for hwId = ', hwId)
-        } else {
-            if (DEBUG) console.warn('_createSerialPort success hwId = ', hwId)
+            return undefined
         }
 
+        if (DEBUG) console.warn('_createSerialPort success hwId = ', hwId)
         return sp
+    }
+
+    _injectHwContext = async (hwId, info, ctl) => {
+        const ctx = {}
+        if (info.hwKind === 'serial') {
+            const sp = await this._ensureSerialPortHelper(hwId)
+            if (sp) {
+                ctx.provideSerialPortHelper = () => sp
+            }
+        }
+        ctl.setContext(ctx)
     }
 
     find = async (hwId) => {
         const { control: ctl, info } = HW_REGISTRY[hwId]
         if (!ctl || !info) {
-            console.log(`ignore, unknown hardware: ${hwId}`, { requestId, hwId, cmd, args })
-            sendError(sock, new Error('unknown hardware:' + hwId))
+            console.log(`ignore, unknown hardware: ${hwId}`)
             return undefined
         }
 
-        if (info.hwKind === 'serial') {
-            const sp = await this._ensureSerialPortHelper(hwId)
-            ctl._context = {
-                provideSerialPortHelper: () => sp
-            }
-        }
+        this._injectHwContext(hwId, info, ctl)
         return ctl
     }
 }
 
+/**
+ * 연결 종료 훅
+ */
+class HwClosingHooks {
+
+    // key={hwid}.{cmd}, value={hwId,cmd,args, debugMsg}
+    _hooks = {}
+
+    _runClosingHook = async (params) => {
+        const { hwId, cmd, args, debugMsg } = params
+        const { control: ctl } = HW_REGISTRY[hwId] ?? {}
+        if (ctl && ctl[cmd]) {
+            const fn = ctl[cmd]
+            try {
+                await fn.apply(ctl, args ?? [])
+                if (DEBUG) console.log(`closing hook ${hwId}.${cmd}:` + debugMsg)
+            } catch (err) {
+                console.log(`closing hook fail ${hwId}.${cmd}:` + err.message)
+            }
+        }
+    }
+
+    run = async () => {
+        const params = Object.values(this._hooks)
+        if (params.length === 0) return
+        console.log(`run closing hooks (count = ${params.length})`)
+        for (let i = 0; i < params.length; i++) {
+            await this._runClosingHook(params[i])
+        }
+
+        this._hooks = {}
+    }
+
+    check = (hwId, requestCmd) => {
+        this._wiseXboard_stopDCMotor(hwId, requestCmd)
+        this._wiseXboardPremium_stopDCMotor(hwId, requestCmd)
+    }
+
+    _wiseXboard_stopDCMotor = (hwId, requestCmd) => {
+        if (hwId !== 'wiseXboard') return
+        const isMotorCmd = ['setDCMotorSpeed', 'setServoMotorAngle'].includes(requestCmd)
+        if (!isMotorCmd) return
+        const cmd = 'stopDCMotor'
+        const key = `${hwId}.${cmd}`
+        if (!this._hooks[key]) {
+            this._hooks[key] = { hwId, cmd, debugMsg: 'DC 모터 정지' }
+            if (DEBUG) console.log('add closingHook:', this._hooks[key])
+        }
+    }
+
+    _wiseXboardPremium_stopDCMotor = (hwId, requestCmd) => {
+        if (hwId !== 'wiseXboardPremium') return
+        const isMotorCmd = ['setDCMotorSpeedP', 'setDCMotor1SpeedP', 'setDCMotor2SpeedP', 'setServoMotorAngleP'].includes(requestCmd)
+        if (!isMotorCmd) return
+
+        const cmd = 'stopDCMotorP'
+        const key = `${hwId}.${cmd}`
+        if (!this._hooks[key]) {
+            this._hooks[key] = { hwId, cmd, debugMsg: 'DC 모터 정지(P)' }
+            if (DEBUG) console.log('add closingHook:', this._hooks[key])
+        }
+    }
+}
+
+
 class DeviceControllerV2 {
     _controlManager = new HwControlManager()
+    _closingHooks = new HwClosingHooks()
 
-    closeResources = () => {
+    closeResources = async () => {
         console.log("XXX closeResources() because no clients")
+        await this._closingHooks.run()
         this._controlManager.closeResources()
     }
 
@@ -113,29 +189,30 @@ class DeviceControllerV2 {
 
         const { requestId, clientMeta, hwId, cmd, args } = message
         if (!hwId) {
-            sendError(sock, new Error('invalid packet:' + JSON.stringify({ hwId, requestId, cmd })))
+            sendError(sock, requestId, new Error('invalid packet:' + JSON.stringify({ hwId, requestId, cmd })))
             return
         }
 
         if (!(hwId in HW_REGISTRY)) {
-            sendError(sock, new Error('unknown hwId:' + hwId))
+            sendError(sock, requestId, new Error('unknown hwId:' + hwId))
             return
         }
 
         const ctl = await this._controlManager.find(hwId)
         if (!ctl) {
             console.log(`ignore, unknown hardware: ${hwId}`, { requestId, hwId, cmd, args })
-            sendError(sock, new Error('unknown hardware:' + hwId))
+            sendError(sock, requestId, new Error('unknown hardware:' + hwId))
             return
         }
 
         const fn = ctl[cmd]
         if (!fn) {
             console.log(`ignore, unknown cmd: ${hwId}.${cmd}`, { requestId, hwId, cmd, args }, ctl)
-            sendError(sock, new Error(`unknown cmd: ${hwId}.${cmd}`))
+            sendError(sock, requestId, new Error(`unknown cmd: ${hwId}.${cmd}`))
             return
         }
 
+        this._closingHooks.check(hwId, cmd)
         fn.apply(ctl, args)
             .then((result) => {
                 let resultFrame
@@ -146,7 +223,7 @@ class DeviceControllerV2 {
                 }
                 sock.emit(DEVICE_CTL_RESPONSE_V2, resultFrame)
             }).catch(err => {
-                sendError(sock, err)
+                sendError(sock, requestId, err)
             })
     }
 }
