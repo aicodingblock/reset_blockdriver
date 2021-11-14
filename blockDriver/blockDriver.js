@@ -71,20 +71,15 @@ function killOzoServer() {
 }
 
 // restart pi-blaster
-killPiBlaster().then(() => {
-    execQuietlyAsync('cd /home/pi/pi-blaster/ && sudo ./pi-blaster')
-})
+killPiBlaster().finally(() => execQuietlyAsync('cd /home/pi/pi-blaster/ && sudo ./pi-blaster'))
 
 // restart ozo-server
-killOzoServer().then(() => {
-    execQuietlyAsync('sudo python3 ./ozo_server.py')
-})
+killOzoServer().finally(() => execQuietlyAsync('sudo python3 ./ozo_server.py'))
 
 // 레거시 디바이스 제어 핸들러
 const legacyDeviceController = createLegacyDeviceController()
 legacyDeviceController.setGpio(gpio)
 legacyDeviceController.setSensor(sensor)
-
 
 // V2 디바이스 제어 핸들러
 const deviceControllerV2 = new DeviceControllerV2()
