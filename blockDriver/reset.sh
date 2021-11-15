@@ -11,8 +11,8 @@ check_internet(){
         echo "internet connectivity ok"
     else
         echo "인터넷 연결을 확인해주세요"
-        read 
-        exit 
+        read _unused
+        exit 1
     fi
 }
 
