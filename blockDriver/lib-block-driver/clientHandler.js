@@ -3,6 +3,8 @@ const gpio = require('rpi-gpio')
 const sensor = require('node-dht-sensor')
 const { createLegacyDeviceController } = require('./createLegacyDeviceController')
 const { DeviceControllerV2 } = require('./DeviceControllerV2')
+const config = require('../config')
+const DEBUG = config.debug
 
 //기본 GPIO 설정
 gpio.setup(29, gpio.DIR_IN, gpio.EDGE_BOTH) //버튼 핀은 입력으로
@@ -52,7 +54,13 @@ const deviceControllerV2 = new DeviceControllerV2()
 const clientSockets = {}
 
 function onNewClient(socket) {
-    console.log('new connection', socket.id, 'totalClients=', Object.keys(clientSockets).length)
+
+    if (DEBUG) {
+        console.log('new connection', socket.id, 'totalClients=', Object.keys(clientSockets).length)
+    } else {
+        console.log('new connection', socket.id)
+    }
+
 
     if (clientSockets[socket.id]) {
         // 이런 경우는 없음

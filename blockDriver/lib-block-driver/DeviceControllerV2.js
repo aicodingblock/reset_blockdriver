@@ -2,6 +2,7 @@ const config = require('../config')
 const { controls: HwRegistry } = require('@ktaicoder/hw-control')
 
 const DEBUG = config.debug
+const VERBOSE = config.verbose
 const DEVICE_CTL_RESPONSE_V2 = 'deviceCtlMsg_v2:response'
 const HW_REGISTRY = {}
 
@@ -14,7 +15,7 @@ Object.entries(HwRegistry).forEach(([hwId, hw]) => {
     registerHw(hwId, hw.info, hw.operator, hw.control())
 })
 
-if (DEBUG) {
+if (VERBOSE) {
     console.log("=======================")
     console.log(HW_REGISTRY)
     console.log("------------------------")
