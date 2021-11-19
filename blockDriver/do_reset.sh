@@ -1,8 +1,6 @@
 #!/bin/sh
 
 WORK=/home/pi/blockcoding/kt_ai_makers_kit_block_coding_driver
-# BRANCH=release
-BRANCH=dev
 
 set -e 
 
@@ -76,7 +74,7 @@ sudo chown -R pi:pi ${WORK}/amk /home/pi/Desktop/
 sudo cp -r ${WORK}/amk/* /home/pi/ai-makers-kit/python3/
 find /home/pi/ai-makers-kit/python3 -user root -exec chown -R pi:pi {} \;
 
-mkdir key
+mkdir -p key
 npm install
 
 cd /home/pi
@@ -92,4 +90,7 @@ sudo ./pi-blaster
 
 echo "${NOW}" > ${WORK}/.upgrade-completed
 rm -f ${WORK}/.upgrading
+
+echo "system reset success!"
+sleep 1
 sudo reboot

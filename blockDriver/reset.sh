@@ -1,8 +1,7 @@
 #!/bin/sh
 
 WORK=/home/pi/blockcoding/kt_ai_makers_kit_block_coding_driver
-# BRANCH=release
-BRANCH=dev
+BRANCH=release
 
 set -e 
 
@@ -20,13 +19,6 @@ check_internet(){
 }
 
 check_internet
-
-rpi_v3="Raspberry Pi 3 Model B"
-rpi_v3b="Raspberry Pi 3 Model B Plus Rev 1.3"
-rpi_v4="Raspberry Pi 4 Model B"
-
-board_model=$(cat /proc/device-tree/model)
-echo $board_model
 
 touch ${WORK}/.upgrading
 
