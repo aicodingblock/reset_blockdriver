@@ -50,7 +50,7 @@ async function execQuietlyAsync(cmd, ...args) {
     try {
         await execAsync(cmd, ...args)
     } catch (ignore) {
-        console.log('ignore error: ', ignore.message)
+        if (DEBUG) console.log('ignore error: ', ignore.message)
     }
 }
 
