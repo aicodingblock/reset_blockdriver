@@ -7,11 +7,11 @@ const DEVICE_CTL_RESPONSE_V2 = 'deviceCtlMsg_v2:response'
 const HW_REGISTRY = {}
 
 const registerHw = (hwId, info, operator, control) => {
+    console.log('register hw:' + hwId)
     HW_REGISTRY[hwId] = { info, operator, control }
 }
 
 Object.entries(HwRegistry).forEach(([hwId, hw]) => {
-    console.log({ hw })
     registerHw(hwId, hw.info, hw.operator, hw.control())
 })
 
@@ -173,7 +173,7 @@ class DeviceControllerV2 {
     _closingHooks = new HwClosingHooks()
 
     closeResources = async () => {
-        console.log("XXX closeResources() because no clients")
+        console.log("closeResources() because no clients")
         await this._closingHooks.run()
         this._controlManager.closeResources()
     }
