@@ -91,6 +91,11 @@ sudo ./pi-blaster
 echo "${NOW}" > ${WORK}/.upgrade-completed
 rm -f ${WORK}/.upgrading
 
+echo 
+echo "===================="
 echo "system reset success!"
+echo "===================="
+echo 
+
 sleep 1
 sudo reboot
