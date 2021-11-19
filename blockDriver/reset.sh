@@ -1,43 +1,30 @@
 #!/bin/sh
-rpi_v3="Raspberry Pi 3 Model B"
-rpi_v3b="Raspberry Pi 3 Model B Plus Rev 1.3"
-rpi_v4="Raspberry Pi 4 Model B"
 
-board_model=$(cat /proc/device-tree/model)
-echo $board_model
+WORK=/home/pi/blockcoding/kt_ai_makers_kit_block_coding_driver
+BRANCH=release
+
+set -e 
+
+NOW=`date +"%G%m%d%H%M%S"`
+
+check_internet(){
+    echo "checking internet..."
+    if ping -q -c 1 -W 1 github.com >/dev/null; then
+        echo "internet connectivity ok"
+    else
+        echo "인터넷 연결을 확인해주세요"
+        read _unused
+        exit 1
+    fi
+}
+
+check_internet
+
+touch ${WORK}/.upgrading
 
 cd /home/pi/blockcoding
 sudo rm -rf kt_ai_makers_kit_block_coding_driver/
-git clone -b release --single-branch https://github.com/aicodingblock/reset_blockdriver.git kt_ai_makers_kit_block_coding_driver
-cd kt_ai_makers_kit_block_coding_driver/blockDriver/
-
-case "${board_model}" in
-  *"$rpi_v4"*)
-     echo "Find Board Model: Raspberry Pi 4"
-     cp /home/pi/blockcoding/kt_ai_makers_kit_block_coding_driver/blockDriver/package_rpi4.json /home/pi/blockcoding/kt_ai_makers_kit_block_coding_driver/blockDriver/package.json
-     cp /home/pi/blockcoding/kt_ai_makers_kit_block_coding_driver/blockDriver/ozolib3_7.so /home/pi/blockcoding/kt_ai_makers_kit_block_coding_driver/blockDriver/ozolib.so
-     #cp /home/pi/blockcoding/kt_ai_makers_kit_block_coding_driver/blockDriver/bd_reset.js /home/pi/blockcoding/kt_ai_makers_kit_block_coding_driver/blockDriver/blockDriver.js
-     ;;
-  *"$rpi_v3"*)
-     echo "Find Board Model: Rasberry Pi 3"
-     cp /home/pi/blockcoding/kt_ai_makers_kit_block_coding_driver/blockDriver/package_rpi3.json /home/pi/blockcoding/kt_ai_makers_kit_block_coding_driver/blockDriver/package.json
-     ;;
-esac
-
-cp -r /home/pi/blockcoding/kt_ai_makers_kit_block_coding_driver/blockDriver/etc/desktop/* /home/pi/Desktop/
-sudo chown -R pi:pi /home/pi/blockcoding/kt_ai_makers_kit_block_coding_driver/amk
-cp -r /home/pi/blockcoding/kt_ai_makers_kit_block_coding_driver/amk/* /home/pi/ai-makers-kit/python3/
-
-mkdir key
-npm install
-
-cd /home/pi
-sudo apt-get install -y autoconf
-git clone https://github.com/sarfata/pi-blaster.git
-cd /home/pi/pi-blaster/
-./autogen.sh
-./configure
-make
-sudo ./pi-blaster
-cd /home/pi/blockcoding/kt_ai_makers_kit_block_coding_driver/blockDriver/
-sudo reboot
+git clone -b ${BRANCH} --depth=1 --single-branch https://github.com/aicodingblock/reset_blockdriver.git kt_ai_makers_kit_block_coding_driver
+cd ${WORK}/blockDriver
+chmod +x *.sh
+./do_reset.sh
