@@ -1,26 +1,34 @@
 const config = require('../config')
 const { controls: HwRegistry } = require('@ktaicoder/hw-control')
-
 const DEBUG = config.debug
 const VERBOSE = config.verbose
 const DEVICE_CTL_RESPONSE_V2 = 'deviceCtlMsg_v2:response'
 const HW_REGISTRY = {}
 
-const registerHw = (hwId, info, operator, control) => {
+const registerHw = (hwId, info, operator, controlFactory) => {
     console.log('register hw:' + hwId)
-    HW_REGISTRY[hwId] = { info, operator, control }
+    HW_REGISTRY[hwId] = { info, operator, controlFactory }
 }
 
 Object.entries(HwRegistry).forEach(([hwId, hw]) => {
-    registerHw(hwId, hw.info, hw.operator, hw.control())
+    registerHw(hwId, hw.info, hw.operator, hw.control)
 })
+
+function createHw(hwId) {
+    const hw = HwRegistry[hwId]
+    return {
+        hwId,
+        info: hw.info,
+        operator: hw.operator,
+        ctl: hw.control()
+    }
+}
 
 if (VERBOSE) {
     console.log("=======================")
-    console.log(HW_REGISTRY)
+    console.log(Object.keys(HW_REGISTRY))
     console.log("------------------------")
 }
-
 
 function sendError(socket, requestId, err) {
     console.log(err)
@@ -31,75 +39,73 @@ function sendError(socket, requestId, err) {
     }
 }
 
-class SerialPortStore {
-    // key:hwId, value: SerialPortHelper
-    _store = {}
 
-    getOrCreate = (hwId) => {
-        let helper = this._store[hwId]
-        if (!helper) {
-            const { operator } = HW_REGISTRY[hwId]
-            helper = operator.createSerialPortHelper('/dev/ttyUSB0')
-            this._store[hwId] = helper
-            helper.open()
-        }
-        return helper
+class SerialPortHolder {
+    constructor(hwId) {
+        const { operator } = HW_REGISTRY[hwId]
+        const helper = operator.createSerialPortHelper('/dev/ttyUSB0')
+        this.hwId = hwId
+        this.helper = helper
+        helper?.open()
     }
 
-    remove = (hwId) => {
-        const helper = this._store[hwId]
+    getSerialPortHelper = () => {
+        return this.helper
+    }
+
+    destroy = () => {
+        const helper = this.helper
         if (helper) {
-            helper.close()
-            delete this._store[hwId]
+            console.log('serial port close for:' + this.hwId)
+            helper.destroy()
         }
-    }
-
-    removeAll = () => {
-        Object.keys(this._store).forEach(hwId => {
-            this.remove(hwId)
-        })
     }
 }
 
-class HwControlManager {
-    _serialPortStore = new SerialPortStore()
-    // key:hwId, value: HwContext
 
+class HwControlManager {
     closeResources = () => {
-        this._serialPortStore.removeAll()
     }
 
-    _ensureSerialPortHelper = async (hwId) => {
-        const sp = this._serialPortStore.getOrCreate(hwId)
+    _ensureSerialPortHolder = async (hwId) => {
+        const holder = new SerialPortHolder(hwId)
+        const sp = holder.getSerialPortHelper()
         if (!sp) {
-            console.warn('_createSerialPort fail for hwId = ', hwId)
+            console.warn('_ensureSerialPortHelper() _createSerialPort fail for hwId = ', hwId)
             return undefined
         }
-
-        if (DEBUG) console.warn('_createSerialPort success hwId = ', hwId)
-        return sp
+        try {
+            await sp.waitUntilOpen()
+            if (DEBUG) console.warn('_ensureSerialPortHelper() _createSerialPort success hwId = ', hwId)
+            return holder
+        } catch (err) {
+            return undefined
+        }
     }
 
     _injectHwContext = async (hwId, info, ctl) => {
         const ctx = {}
+        let serialPortHolder = undefined
         if (info.hwKind === 'serial') {
-            const sp = await this._ensureSerialPortHelper(hwId)
-            if (sp) {
-                ctx.provideSerialPortHelper = () => sp
+            serialPortHolder = await this._ensureSerialPortHolder(hwId)
+            const helper = serialPortHolder.getSerialPortHelper()
+            if (helper) {
+                ctx.provideSerialPortHelper = () => helper
             }
         }
         ctl.setContext(ctx)
+        return serialPortHolder
     }
 
     find = async (hwId) => {
-        const { control: ctl, info } = HW_REGISTRY[hwId]
+        const { ctl, info, operator } = createHw(hwId)
         if (!ctl || !info) {
             console.log(`ignore, unknown hardware: ${hwId}`)
-            return undefined
+            return {}
         }
 
-        this._injectHwContext(hwId, info, ctl)
-        return ctl
+        const serialPortHolder = await this._injectHwContext(hwId, info, ctl)
+        return { ctl, info, operator, serialPortHolder }
     }
 }
 
@@ -107,21 +113,34 @@ class HwControlManager {
  * 연결 종료 훅
  */
 class HwClosingHooks {
+    constructor(ctlmgr) {
+        this._controlManager = ctlmgr
+    }
 
     // key={hwid}.{cmd}, value={hwId,cmd,args, debugMsg}
     _hooks = {}
 
     _runClosingHook = async (params) => {
         const { hwId, cmd, args, debugMsg } = params
-        const { control: ctl } = HW_REGISTRY[hwId] ?? {}
-        if (ctl && ctl[cmd]) {
-            const fn = ctl[cmd]
-            try {
-                await fn.apply(ctl, args ?? [])
-                if (DEBUG) console.log(`closing hook ${hwId}.${cmd}:` + debugMsg)
-            } catch (err) {
-                console.log(`closing hook fail ${hwId}.${cmd}:` + err.message)
+        const { ctl, serialPortHolder } = await this._controlManager.find(hwId)
+
+        try {
+            if (!ctl) {
+                console.log('XXX _runClosingHook cannot find hwid=', hwId)
+                return
             }
+
+            if (ctl && ctl[cmd]) {
+                const fn = ctl[cmd]
+                try {
+                    await fn.apply(ctl, args ?? [])
+                    if (DEBUG) console.log(`closing hook ${hwId}.${cmd}:` + debugMsg)
+                } catch (err) {
+                    console.log(`closing hook fail ${hwId}.${cmd}:` + err.message)
+                }
+            }
+        } finally {
+            serialPortHolder?.destroy()
         }
     }
 
@@ -170,11 +189,14 @@ class HwClosingHooks {
 
 class DeviceControllerV2 {
     _controlManager = new HwControlManager()
-    _closingHooks = new HwClosingHooks()
+    _closingHooks = new HwClosingHooks(this._controlManager)
 
     closeResources = async () => {
         console.log("closeResources() because no clients")
-        await this._closingHooks.run()
+        try {
+            await this._closingHooks.run()
+        } catch (ignore) {
+        }
         this._controlManager.closeResources()
     }
 
@@ -184,10 +206,6 @@ class DeviceControllerV2 {
      * @returns {boolean} 메시지를 처리했으면 true를 리턴
      */
     handle = async (sock, message) => {
-        // sock.on('disconnect', () => {
-        //     console.log('socket disconnected')
-        // })
-
         const { requestId, clientMeta, hwId, cmd, args } = message
         if (!hwId) {
             sendError(sock, requestId, new Error('invalid packet:' + JSON.stringify({ hwId, requestId, cmd })))
@@ -199,9 +217,10 @@ class DeviceControllerV2 {
             return
         }
 
-        const ctl = await this._controlManager.find(hwId)
+        const { ctl, info, operator, serialPortHolder } = await this._controlManager.find(hwId)
         if (!ctl) {
             console.log(`ignore, unknown hardware: ${hwId}`, { requestId, hwId, cmd, args })
+            serialPortHolder?.destroy(hwId)
             sendError(sock, requestId, new Error('unknown hardware:' + hwId))
             return
         }
@@ -209,6 +228,7 @@ class DeviceControllerV2 {
         const fn = ctl[cmd]
         if (!fn) {
             console.log(`ignore, unknown cmd: ${hwId}.${cmd}`, { requestId, hwId, cmd, args }, ctl)
+            serialPortHolder?.destroy(hwId)
             sendError(sock, requestId, new Error(`unknown cmd: ${hwId}.${cmd}`))
             return
         }
@@ -222,9 +242,13 @@ class DeviceControllerV2 {
                 } else {
                     resultFrame = { requestId, success: true, body: result }
                 }
+                serialPortHolder?.destroy(hwId)
                 sock.emit(DEVICE_CTL_RESPONSE_V2, resultFrame)
             }).catch(err => {
+                serialPortHolder?.destroy(hwId)
                 sendError(sock, requestId, err)
+            }).finally(() => {
+
             })
     }
 }

@@ -4,7 +4,7 @@ const { program } = require('commander')
 const { execQuietlyAsync } = require('./lib-block-driver/process-utils')
 const { createWebServer } = require('./lib-block-driver/createWebServer')
 const { createSocketIoServer } = require('./lib-block-driver/createSocketIoServer')
-const { onNewClient } = require('./lib-block-driver/clientHandler')
+const { onNewClient, onReadyWebSocketServer } = require('./lib-block-driver/clientHandler')
 
 const programArg = program
     .version('0.1')
@@ -19,12 +19,12 @@ if (!programArg.autorun) {
 }
 
 
-// pi-blaster process kill
+// kill pi-blaster
 function killPiBlaster() {
     return execQuietlyAsync(`sudo pkill pi-blaster`)
 }
 
-// ozo server process kill
+// kill ozo server
 function killOzoServer() {
     return execQuietlyAsync(`ps -ef | grep "python3 ./ozo_server" | grep -v grep | awk '{print $2}' | xargs sudo kill -9 2> /dev/null`)
 }
@@ -38,12 +38,16 @@ killOzoServer().finally(() => execQuietlyAsync('sudo python3 ./ozo_server.py'))
 const io = createSocketIoServer()
 
 io.on('connection', onNewClient)
+
 io.on('disconnect', function (arg) {
     console.log('on disconnect', arg)
 })
 
 // socket io server start
 io.listen(3001)
+
+// 서버가 준비되면 GPIO 이벤트를 감시하기 시작한다
+onReadyWebSocketServer(io)
 
 // for devkey
 const uploadDir = __dirname + '/key/'

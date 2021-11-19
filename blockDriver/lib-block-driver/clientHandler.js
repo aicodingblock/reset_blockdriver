@@ -3,39 +3,10 @@ const gpio = require('rpi-gpio')
 const sensor = require('node-dht-sensor')
 const { createLegacyDeviceController } = require('./createLegacyDeviceController')
 const { DeviceControllerV2 } = require('./DeviceControllerV2')
+const { broadcastGpioEvent } = require('./broadcastGpioEvent')
+
 const config = require('../config')
 const DEBUG = config.debug
-
-//기본 GPIO 설정
-gpio.setup(29, gpio.DIR_IN, gpio.EDGE_BOTH) //버튼 핀은 입력으로
-
-gpio.on('change', function (channel, value) {
-    //29번 핀에 변화가 있는 경우
-    if (channel === 29 && value === false) {
-        //console.log("Button Clicked!");
-        io.sockets.emit('receiveData', {
-            Type: 'ktaimk_button_push',
-            Data: { ret: true },
-        })
-        //return;
-    }
-
-    if (typeof value === 'boolean') {
-        console.log(`Boolean Type Vaule --- gpio Read Pin:${channel} Value:${value}`)
-    } else if (typeof value === 'number') {
-        console.log(`Number Type Value gpio Read Pin:${channel} Value:${value}`)
-        value = value.toString()
-    } else if (typeof value === 'string') {
-        console.log(` String Type Vaule --- gpio Read Pin:${channel} Value:${value}`)
-    } else if (value === null) {
-        console.log(`gpio Read Data Empty..... --- gpio Read Pin:${channel} Value:${value}`)
-    } else {
-        console.log(`NaN Type Value --- gpio Read Pin:${channel} Value:${value}`)
-    }
-
-    io.sockets.emit('receiveData', { Type: 'ktaimk_gpio_data', Data: { pin: channel, value } })
-})
-
 
 const DEVICE_CTL_REQUEST_V1 = 'deviceCtlMsg'
 const DEVICE_CTL_REQUEST_V2 = 'deviceCtlMsg_v2:request'
@@ -51,6 +22,16 @@ legacyDeviceController.setSensor(sensor)
 // V2 디바이스 제어 핸들러
 const deviceControllerV2 = new DeviceControllerV2()
 
+
+/**
+ * socket.io 서버가 준비되었을때 호출되는 함수
+ * GPIO event를 브로드캐스트한다
+ */
+function onReadyWebSocketServer(io) {
+    broadcastGpioEvent(io, gpio)
+}
+
+// 클라이언트 소켓 모음
 const clientSockets = {}
 
 function onNewClient(socket) {
@@ -67,6 +48,7 @@ function onNewClient(socket) {
         console.log('already connected', socket.id)
         return
     }
+
     clientSockets[socket.id] = socket
 
     legacyDeviceController.setGpio(gpio)
@@ -158,5 +140,6 @@ function msg_executor(socket, msg) {
 }
 
 module.exports = {
-    onNewClient
+    onNewClient,
+    onReadyWebSocketServer
 }
