@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
-WORK=/home/pi/blockcoding/kt_ai_makers_kit_block_coding_driver
 BRANCH=release
 
 set -e 
