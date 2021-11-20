@@ -90,6 +90,7 @@ sudo ./pi-blaster
 
 echo "${NOW}" > ${WORK}/.upgrade-completed
 rm -f ${WORK}/.upgrading
+rm -rf /home/pi/.tmp.rescue
 
 echo 
 echo "===================="
