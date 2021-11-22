@@ -20,11 +20,11 @@ check_internet(){
 
 check_internet
 
-touch ${WORK}/.upgrading
-
 cd /home/pi/blockcoding
 sudo rm -rf kt_ai_makers_kit_block_coding_driver/
 git clone -b ${BRANCH} --depth=1 --single-branch https://github.com/aicodingblock/reset_blockdriver.git kt_ai_makers_kit_block_coding_driver
 cd ${WORK}/blockDriver
 chmod +x *.sh
+
+touch ${WORK}/.upgrading
 ./do_reset.sh
