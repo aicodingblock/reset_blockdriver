@@ -5,7 +5,7 @@ const WISE_PY_SCRIPT_FOLDER = './lib-block-driver/legacy-device/wise-xboard/py'
 function pythonWise(scriptName, ...args) {
     let param = ''
     if (args.length > 0) {
-        param = args.join(',')
+        param = args.join(' ')
     }
     if (scriptName.startsWith('./')) {
         scriptName = scriptName.substring(2)
@@ -17,7 +17,7 @@ function pythonWise(scriptName, ...args) {
 function python3Wise(scriptName, ...args) {
     let param = ''
     if (args.length > 0) {
-        param = args.join(',')
+        param = args.join(' ')
     }
     if (scriptName.startsWith('./')) {
         scriptName = scriptName.substring(2)
