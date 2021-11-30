@@ -96,7 +96,7 @@ case "${board_model}" in
 esac
 
 # chown pi
-find ${WORK} -user root -exec chown -R pi:pi {} \;
+sudo find ${WORK} -user root -exec chown -R pi:pi {} \;
 
 sudo cp -r ${WORK}/blockDriver/etc/desktop/* /home/pi/Desktop/
 sudo chown -R pi:pi ${WORK}/amk /home/pi/Desktop/
