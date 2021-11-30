@@ -39,7 +39,7 @@ reinstall_nodejs() {
     echo "start nodejs reinstall"
     sudo apt purge -y nodejs nodejs.*
     sudo rm -f /etc/apt/sources.list.d/nodesource.list /usr/share/keyrings/nodesource.gpg
-    sudo apt -y update
+    sudo apt -y update  --allow-releaseinfo-change
     curl -sSL https://deb.nodesource.com/setup_14.x | sudo bash -
     sudo apt install -y nodejs
     sudo npm install -g yarn
