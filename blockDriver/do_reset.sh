@@ -50,8 +50,14 @@ reinstall_nodejs
 ### check serial port 
 serial_service_ok="false"
 check_serial(){
+    fpath=/etc/systemd/system/serial-getty@ttyUSB0.service
+    if [ ! -f "$fpath" ];then 
+        serial_service_ok="false"
+        return
+    fi
     if systemctl is-enabled serial-getty@ttyUSB0.service > /dev/null 2>&1 ; then
-    	if cat /etc/systemd/system/serial-getty@ttyUSB0.service | grep 'ExecStart' | grep -w pi | grep 115200 > /dev/null 2>&1 ; then
+        
+    	if cat $fpath | grep 'ExecStart' | grep -w pi | grep 115200 > /dev/null 2>&1 ; then
     		serial_service_ok="true"
     	fi
     fi
@@ -70,7 +76,7 @@ else
     sudo systemctl stop autologin@.service > /dev/null 2>&1 /dev/null || true 
     sudo systemctl disable autologin@.service > /dev/null 2>&1 /dev/null || true
 
-    sudo cp serial-getty@ttyUSB0.service /etc/systemd/system/
+    sudo cp ${WORK}/blockDriver/etc/systemd/serial-getty@ttyUSB0.service /etc/systemd/system/
     sudo systemctl daemon-reload
     sudo systemctl enable serial-getty@ttyUSB0.service 
     sudo systemctl restart serial-getty@ttyUSB0.service
