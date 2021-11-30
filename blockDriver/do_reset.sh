@@ -39,7 +39,8 @@ reinstall_nodejs() {
     echo "start nodejs reinstall"
     sudo apt purge -y nodejs nodejs.*
     sudo rm -f /etc/apt/sources.list.d/nodesource.list /usr/share/keyrings/nodesource.gpg
-    sudo apt -y update  --allow-releaseinfo-change
+    sudo apt update --allow-releaseinfo-change > /dev/null 2>&1 || true
+    sudo apt -y update > /dev/null 2>&1 || true
     curl -sSL https://deb.nodesource.com/setup_14.x | sudo bash -
     sudo apt install -y nodejs
     sudo npm install -g yarn
@@ -47,6 +48,36 @@ reinstall_nodejs() {
 }
 
 reinstall_nodejs
+
+### check serial port 
+serial_service_ok="false"
+check_serial(){
+    if systemctl is-enabled serial-getty@ttyUSB0.service > /dev/null 2>&1 ; then
+    	if cat /etc/systemd/system/serial-getty@ttyUSB0.service | grep 'ExecStart' | grep -w pi | grep 115200 > /dev/null 2>&1 ; then
+    		serial_service_ok="true"
+    	fi
+    fi
+}
+check_serial
+
+if [ "true" = $serial_service_ok ];then
+    echo "serial service check ok!"
+else
+    echo "serial service restart"
+
+    # for rp4
+    sudo systemctl stop serial-getty@ttyUSB0.service > /dev/null 2>&1 /dev/null || true
+
+    # for rp3 
+    sudo systemctl stop autologin@.service > /dev/null 2>&1 /dev/null || true 
+    sudo systemctl disable autologin@.service > /dev/null 2>&1 /dev/null || true
+
+    sudo cp serial-getty@ttyUSB0.service /etc/systemd/system/
+    sudo systemctl daemon-reload
+    sudo systemctl enable serial-getty@ttyUSB0.service 
+    sudo systemctl restart serial-getty@ttyUSB0.service
+fi
+
 
 touch ${WORK}/.upgrading
 
