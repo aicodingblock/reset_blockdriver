@@ -47,27 +47,31 @@ reinstall_nodejs() {
 
 reinstall_nodejs
 
-### check serial port 
+### begin of serial service
+
 serial_service_ok="false"
+
 check_serial(){
     fpath=/etc/systemd/system/serial-getty@ttyUSB0.service
     if [ ! -f "$fpath" ];then 
         serial_service_ok="false"
         return
     fi
+
     if systemctl is-enabled serial-getty@ttyUSB0.service > /dev/null 2>&1 ; then
-        
-    	if cat $fpath | grep 'ExecStart' | grep -w pi | grep 115200 > /dev/null 2>&1 ; then
+    	if cat $fpath | egrep '^ExecStart' | grep -w pi | grep 115200 > /dev/null 2>&1 ; then
     		serial_service_ok="true"
     	fi
     fi
 }
+
+
 check_serial
 
 if [ "true" = $serial_service_ok ];then
     echo "serial service check ok!"
 else
-    echo "serial service restart"
+    echo "start serial service configuration"
 
     # for rp4
     sudo systemctl stop serial-getty@ttyUSB0.service > /dev/null 2>&1 /dev/null || true
@@ -82,6 +86,7 @@ else
     sudo systemctl restart serial-getty@ttyUSB0.service
 fi
 
+### end of serial service
 
 touch ${WORK}/.upgrading
 
