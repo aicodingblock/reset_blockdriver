@@ -80,7 +80,7 @@ fi
 touch ${WORK}/.upgrading
 
 cd ${WORK}/blockDriver
-chmod +x *.sh
+sudo chmod +x *.sh
 
 case "${board_model}" in
   *"$rpi_v4"*)
@@ -101,7 +101,7 @@ find ${WORK} -user root -exec chown -R pi:pi {} \;
 sudo cp -r ${WORK}/blockDriver/etc/desktop/* /home/pi/Desktop/
 sudo chown -R pi:pi ${WORK}/amk /home/pi/Desktop/
 sudo cp -r ${WORK}/amk/* /home/pi/ai-makers-kit/python3/
-find /home/pi/ai-makers-kit/python3 -user root -exec chown -R pi:pi {} \;
+sudo find /home/pi/ai-makers-kit/python3 -user root -exec chown -R pi:pi {} \;
 
 mkdir -p key
 npm install
