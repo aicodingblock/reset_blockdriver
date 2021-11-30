@@ -2,8 +2,6 @@
 
 WORK=/home/pi/blockcoding/kt_ai_makers_kit_block_coding_driver
 
-set -e 
-
 NOW=`date +"%G%m%d%H%M%S"`
 
 check_internet(){
