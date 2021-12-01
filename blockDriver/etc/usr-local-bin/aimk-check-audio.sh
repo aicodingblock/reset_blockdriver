@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
+# last changed at 2021.12.01
+
+# PC 프로그램에서 오디오 점검할 때 호출한다.
+
 cd /home/pi/.aicodingblock/bin
 
 TMPDIR="/home/pi/Music"

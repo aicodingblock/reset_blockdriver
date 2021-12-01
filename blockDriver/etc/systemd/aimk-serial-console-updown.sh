@@ -1,5 +1,13 @@
 #!/usr/bin/env bash
 
+# last changed at 2021.12.01
+
+# aimk-serial-console.service에서 호출하는 스크립트
+# root 권한으로 실행된다.
+# USB에 콘솔용 시리얼이 연결되면, 콘솔 시리얼 서비스를 실행한다.
+# web.cn사의 CH34x 드라이버를 통해 연결되므로 
+# 이 조건을 체크한다. 현재 라즈베리3,4에서 사용가능하다.
+
 INFO_FILE=/tmp/aimk-ttyUSB0
 
 udevadm info /dev/ttyUSB0 > $INFO_FILE
