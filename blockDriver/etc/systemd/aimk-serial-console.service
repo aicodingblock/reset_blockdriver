@@ -1,0 +1,6 @@
+[Unit]
+Description=ttyUSB0 serial console
+After=syslog.target
+
+[Service]
+ExecStart=/home/pi/.aicodingblock/bin/aimk-serial-console-updown.sh
