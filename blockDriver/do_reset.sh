@@ -49,42 +49,42 @@ reinstall_nodejs
 
 ### begin of serial service
 
-serial_service_ok="false"
-
-check_serial(){
-    fpath=/etc/systemd/system/serial-getty@ttyUSB0.service
-    if [ ! -f "$fpath" ];then 
-        serial_service_ok="false"
-        return
-    fi
-
-    if systemctl is-enabled serial-getty@ttyUSB0.service > /dev/null 2>&1 ; then
-    	if cat $fpath | egrep '^ExecStart' | grep -w pi | grep 115200 > /dev/null 2>&1 ; then
-    		serial_service_ok="true"
-    	fi
-    fi
-}
-
-
-check_serial
-
-if [ "true" = $serial_service_ok ];then
-    echo "serial service check ok!"
-else
-    echo "start serial service configuration"
-
-    # for rp4
-    sudo systemctl stop serial-getty@ttyUSB0.service > /dev/null 2>&1 /dev/null || true
-
-    # for rp3 
-    sudo systemctl stop autologin@.service > /dev/null 2>&1 /dev/null || true 
-    sudo systemctl disable autologin@.service > /dev/null 2>&1 /dev/null || true
-
-    sudo cp ${WORK}/blockDriver/etc/systemd/serial-getty@ttyUSB0.service /etc/systemd/system/
-    sudo systemctl daemon-reload
-    sudo systemctl enable serial-getty@ttyUSB0.service 
-    sudo systemctl restart serial-getty@ttyUSB0.service
-fi
+# serial_service_ok="false"
+# 
+# check_serial(){
+#     fpath=/etc/systemd/system/serial-getty@ttyUSB0.service
+#     if [ ! -f "$fpath" ];then 
+#         serial_service_ok="false"
+#         return
+#     fi
+# 
+#     if systemctl is-enabled serial-getty@ttyUSB0.service > /dev/null 2>&1 ; then
+#         if cat $fpath | egrep '^ExecStart' | grep -w pi | grep 115200 > /dev/null 2>&1 ; then
+#             serial_service_ok="true"
+#         fi
+#     fi
+# }
+# 
+# 
+# check_serial
+# 
+# if [ "true" = $serial_service_ok ];then
+#     echo "serial service check ok!"
+# else
+#     echo "start serial service configuration"
+# 
+#     # for rp4
+#     sudo systemctl stop serial-getty@ttyUSB0.service > /dev/null 2>&1 /dev/null || true
+# 
+#     # for rp3 
+#     sudo systemctl stop autologin@.service > /dev/null 2>&1 /dev/null || true 
+#     sudo systemctl disable autologin@.service > /dev/null 2>&1 /dev/null || true
+# 
+#     sudo cp ${WORK}/blockDriver/etc/systemd/serial-getty@ttyUSB0.service /etc/systemd/system/
+#     sudo systemctl daemon-reload
+#     sudo systemctl enable serial-getty@ttyUSB0.service 
+#     sudo systemctl restart serial-getty@ttyUSB0.service
+# fi
 
 ### end of serial service
 
