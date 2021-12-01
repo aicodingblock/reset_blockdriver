@@ -57,7 +57,7 @@ class SerialPortHolder {
         const helper = this.helper
         if (helper) {
             console.log('serial port close for:' + this.hwId)
-            helper.destroy()
+            helper.close()
         }
     }
 }
@@ -156,34 +156,42 @@ class HwClosingHooks {
     }
 
     check = (hwId, requestCmd) => {
-        this._wiseXboard_stopDCMotor(hwId, requestCmd)
-        this._wiseXboardPremium_stopDCMotor(hwId, requestCmd)
+        this._registerOnBeforeClose(hwId, requestCmd)
+        // this._wiseXboard_stopDCMotor(hwId, requestCmd)
+        // this._wiseXboardPremium_stopDCMotor(hwId, requestCmd)
     }
 
-    _wiseXboard_stopDCMotor = (hwId, requestCmd) => {
-        if (hwId !== 'wiseXboard') return
-        const isMotorCmd = ['setDCMotorSpeed', 'setServoMotorAngle'].includes(requestCmd)
-        if (!isMotorCmd) return
-        const cmd = 'stopDCMotor'
-        const key = `${hwId}.${cmd}`
+    _registerOnBeforeClose = (hwId) => {
+        const key = `${hwId}.onBeforeClose`
         if (!this._hooks[key]) {
-            this._hooks[key] = { hwId, cmd, debugMsg: 'DC 모터 정지' }
-            if (DEBUG) console.log('add closingHook:', this._hooks[key])
+            this._hooks[key] = { hwId, cmd: 'onBeforeClose', debugMsg: '중지' }
         }
     }
 
-    _wiseXboardPremium_stopDCMotor = (hwId, requestCmd) => {
-        if (hwId !== 'wiseXboardPremium') return
-        const isMotorCmd = ['setDCMotorSpeedP', 'setDCMotor1SpeedP', 'setDCMotor2SpeedP', 'setServoMotorAngleP'].includes(requestCmd)
-        if (!isMotorCmd) return
+    // _wiseXboard_stopDCMotor = (hwId, requestCmd) => {
+    //     if (hwId !== 'wiseXboard') return
+    //     const isMotorCmd = ['setDCMotorSpeed', 'setServoMotorAngle'].includes(requestCmd)
+    //     if (!isMotorCmd) return
+    //     const cmd = 'stopDCMotor'
+    //     const key = `${hwId}.${cmd}`
+    //     if (!this._hooks[key]) {
+    //         this._hooks[key] = { hwId, cmd, debugMsg: 'DC 모터 정지' }
+    //         if (DEBUG) console.log('add closingHook:', this._hooks[key])
+    //     }
+    // }
 
-        const cmd = 'stopDCMotorP'
-        const key = `${hwId}.${cmd}`
-        if (!this._hooks[key]) {
-            this._hooks[key] = { hwId, cmd, debugMsg: 'DC 모터 정지(P)' }
-            if (DEBUG) console.log('add closingHook:', this._hooks[key])
-        }
-    }
+    // _wiseXboardPremium_stopDCMotor = (hwId, requestCmd) => {
+    //     if (hwId !== 'wiseXboardPremium') return
+    //     const isMotorCmd = ['setDCMotorSpeedP', 'setDCMotor1SpeedP', 'setDCMotor2SpeedP', 'setServoMotorAngleP'].includes(requestCmd)
+    //     if (!isMotorCmd) return
+
+    //     const cmd = 'stopDCMotorP'
+    //     const key = `${hwId}.${cmd}`
+    //     if (!this._hooks[key]) {
+    //         this._hooks[key] = { hwId, cmd, debugMsg: 'DC 모터 정지(P)' }
+    //         if (DEBUG) console.log('add closingHook:', this._hooks[key])
+    //     }
+    // }
 }
 
 
@@ -220,7 +228,7 @@ class DeviceControllerV2 {
         const { ctl, info, operator, serialPortHolder } = await this._controlManager.find(hwId)
         if (!ctl) {
             console.log(`ignore, unknown hardware: ${hwId}`, { requestId, hwId, cmd, args })
-            serialPortHolder?.destroy(hwId)
+            serialPortHolder?.destroy()
             sendError(sock, requestId, new Error('unknown hardware:' + hwId))
             return
         }
@@ -228,7 +236,7 @@ class DeviceControllerV2 {
         const fn = ctl[cmd]
         if (!fn) {
             console.log(`ignore, unknown cmd: ${hwId}.${cmd}`, { requestId, hwId, cmd, args }, ctl)
-            serialPortHolder?.destroy(hwId)
+            serialPortHolder?.destroy()
             sendError(sock, requestId, new Error(`unknown cmd: ${hwId}.${cmd}`))
             return
         }
@@ -242,10 +250,10 @@ class DeviceControllerV2 {
                 } else {
                     resultFrame = { requestId, success: true, body: result }
                 }
-                serialPortHolder?.destroy(hwId)
+                serialPortHolder?.destroy()
                 sock.emit(DEVICE_CTL_RESPONSE_V2, resultFrame)
             }).catch(err => {
-                serialPortHolder?.destroy(hwId)
+                serialPortHolder?.destroy()
                 sendError(sock, requestId, err)
             }).finally(() => {
 
