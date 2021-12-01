@@ -66,11 +66,15 @@ if [ "$INGIT" = 'true' ];then
     else
         str="현재 버전이 최신 버전입니다."
         echo $str
+        exit 0
     fi
 else
     echo no inGit
-    exit 
+    exit 1
 fi
+
+# 임시 로직
+npm install @ktaicoder/hw-proto @ktaicoder/hw-control
 
 succ="false"
 SETUP_DIR=${WORK}/blockDriver/etc/setup
