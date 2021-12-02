@@ -13,6 +13,7 @@ check_internet(){
 
 check_internet
 
+# 임시 폴더에서 업데이트 스크립트 실행
 WORK=/home/pi/.aicodingblock/.codingpack-update
 rm -rf $WORK
 mkdir -p $WORK
