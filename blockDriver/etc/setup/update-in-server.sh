@@ -74,7 +74,13 @@ else
 fi
 
 # 임시 로직
-npm install @ktaicoder/hw-proto @ktaicoder/hw-control
+echo "하드웨어 라이브러리 점검 시작"
+echo "잠시만 기다려주세요..."
+
+npm install @ktaicoder/hw-proto @ktaicoder/hw-control 2> /dev/null || true
+
+echo "하드웨어 라이브러리 점검 완료!"
+# end of 임시로직
 
 succ="false"
 SETUP_DIR=${WORK}/blockDriver/etc/setup
