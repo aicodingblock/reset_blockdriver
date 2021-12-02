@@ -5,8 +5,8 @@
     "dev": "node blockDriver"
   },
   "dependencies": {
-    "@ktaicoder/hw-control": "^1",
-    "@ktaicoder/hw-proto": "^1",
+    "@ktaicoder/hw-control": "^1.0.22",
+    "@ktaicoder/hw-proto": "^1.0.15",
     "@grpc/grpc-js": "^1.4.4",
     "@grpc/proto-loader": "^0.6.2",
     "async": "^3.2.0",

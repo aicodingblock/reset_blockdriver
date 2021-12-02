@@ -157,8 +157,6 @@ class HwClosingHooks {
 
     check = (hwId, requestCmd) => {
         this._registerOnBeforeClose(hwId, requestCmd)
-        // this._wiseXboard_stopDCMotor(hwId, requestCmd)
-        // this._wiseXboardPremium_stopDCMotor(hwId, requestCmd)
     }
 
     _registerOnBeforeClose = (hwId) => {
@@ -167,31 +165,6 @@ class HwClosingHooks {
             this._hooks[key] = { hwId, cmd: 'onBeforeClose', debugMsg: '중지' }
         }
     }
-
-    // _wiseXboard_stopDCMotor = (hwId, requestCmd) => {
-    //     if (hwId !== 'wiseXboard') return
-    //     const isMotorCmd = ['setDCMotorSpeed', 'setServoMotorAngle'].includes(requestCmd)
-    //     if (!isMotorCmd) return
-    //     const cmd = 'stopDCMotor'
-    //     const key = `${hwId}.${cmd}`
-    //     if (!this._hooks[key]) {
-    //         this._hooks[key] = { hwId, cmd, debugMsg: 'DC 모터 정지' }
-    //         if (DEBUG) console.log('add closingHook:', this._hooks[key])
-    //     }
-    // }
-
-    // _wiseXboardPremium_stopDCMotor = (hwId, requestCmd) => {
-    //     if (hwId !== 'wiseXboardPremium') return
-    //     const isMotorCmd = ['setDCMotorSpeedP', 'setDCMotor1SpeedP', 'setDCMotor2SpeedP', 'setServoMotorAngleP'].includes(requestCmd)
-    //     if (!isMotorCmd) return
-
-    //     const cmd = 'stopDCMotorP'
-    //     const key = `${hwId}.${cmd}`
-    //     if (!this._hooks[key]) {
-    //         this._hooks[key] = { hwId, cmd, debugMsg: 'DC 모터 정지(P)' }
-    //         if (DEBUG) console.log('add closingHook:', this._hooks[key])
-    //     }
-    // }
 }
 
 

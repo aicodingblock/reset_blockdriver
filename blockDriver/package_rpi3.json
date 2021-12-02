@@ -2,8 +2,8 @@
   "name": "aimakerskit-examples",
   "version": "1.0.0",
   "dependencies": {
-    "@ktaicoder/hw-control": "^1",
-    "@ktaicoder/hw-proto": "^1",
+    "@ktaicoder/hw-control": "^1.0.22",
+    "@ktaicoder/hw-proto": "^1.0.15",
     "async": "^3.2.0",
     "commander": "^8.3.0",
     "cors": "^2.8.5",
