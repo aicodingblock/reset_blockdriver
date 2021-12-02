@@ -101,7 +101,7 @@ fi
 echo "하드웨어 라이브러리 점검 시작"
 echo "잠시만 기다려주세요..."
 
-npm install @ktaicoder/hw-proto @ktaicoder/hw-control 2> /dev/null || true
+npm install --no-audit @ktaicoder/hw-proto @ktaicoder/hw-control 2> /dev/null || true
 find ./ -user root -exec chown -R pi:pi {} \;
 
 echo "하드웨어 라이브러리 점검 완료!"
