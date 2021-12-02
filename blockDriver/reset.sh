@@ -5,8 +5,6 @@ BRANCH=release
 
 set -e 
 
-NOW=`date +"%G%m%d%H%M%S"`
-
 check_internet(){
     echo "checking internet..."
     if ping -q -c 1 -W 1 github.com >/dev/null; then
@@ -26,5 +24,4 @@ git clone -b ${BRANCH} --depth=1 --single-branch https://github.com/aicodingbloc
 cd ${WORK}/blockDriver
 sudo chmod +x *.sh
 
-touch ${WORK}/.upgrading
 ./do_reset.sh
