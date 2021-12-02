@@ -7,14 +7,15 @@
 
 # 현재 폴더는 /home/pi/blockcoding/kt_ai_makers_kit_block_coding_driver/blockDriver/
 WORK=/home/pi/blockcoding/kt_ai_makers_kit_block_coding_driver
+TMP_UPDATE=/home/pi/.tmp.updating
 
 if [ ! -d "$WORK/blockDriver" ];then
     echo "기존 폴더가 없어서 업데이트 할 수 없습니다."
     echo "시스템 복구가 필요합니다."
     exit 1
 fi
-
 cd $WORK/blockDriver
+
 
 echo "업데이트를 확인중입니다..."
 
@@ -26,26 +27,49 @@ get_latest_release_version() {
 }
 
 doUpdate(){
-    str="최신 버전을 찾았습니다. 업데이트를 시작합니다."
-    echo $str
-    git checkout .  # restore local change
-    git clean -f -d # remove untracked files
+    echo "최신 버전을 찾았습니다. 업데이트를 시작합니다."
+    pushd $WORK
+
+    # 임시 폴더 생성
+    rm -rf $TMP_UPDATE  tmpBlockDriver
+    mkdir -p $TMP_UPDATE
+
+    # 기존 blockDriver 백업
+    mv blockDriver $TMP_UPDATE/
+
+    # 최신 버전 받기
     git reset --hard HEAD # remove commit
     git pull
-	RES=$?
-    find ./ -user root -exec chown -R pi:pi {} \;
+    RES=$?
+    if [ $RES -ne 0 ];then
+        # 이런 경우는 발생하지 않을 듯
+        find $WORK -user root -exec chown -R pi:pi {} \;
+        echo
+        echo "================"
+        echo "일부 파일이 변경되어 업데이트를 할 수 없습니다"
+        echo "시스템 초기화나 복구를 실행해주세요"
+        echo "================"
+        echo
+        echo "업데이트 실패"
+        exit 1
+    fi
 
-	if [ $RES -ne 0 ];then
-        # 이런 경우는 발생하지 않음
-	    echo
-	    echo "================"
-	    echo "일부 파일이 변경되어 업데이트를 할 수 없습니다"
-	    echo "시스템 초기화나 복구를 실행해주세요"
-	    echo "================"
-	    echo
-		echo "업데이트 실패"
-		exit 1
-	fi
+    # 업데이트는 재설치는 아니므로, 설치된 패키지 정보를 유지한다.
+    # 복사할 때 아래 파일은 제외
+    mv blockDriver tmpBlockDriver
+    rm tmpBlockDriver/package.json tmpBlockDriver/package-lock.json 
+
+    # 패키지 정보외에는 덮어 씌운다
+    mv $TMP_UPDATE/blockDriver .
+    cp -rf tmpBlockDriver/*  blockDriver/
+
+    # 임시 폴더 제거
+    rm -rf $TMP_UPDATE tmpBlockDriver
+    
+    # 소유자 변경
+    find $WORK -user root -exec chown -R pi:pi {} \;
+    popd
+
     copyShortcut
 }
 
@@ -78,6 +102,7 @@ echo "하드웨어 라이브러리 점검 시작"
 echo "잠시만 기다려주세요..."
 
 npm install @ktaicoder/hw-proto @ktaicoder/hw-control 2> /dev/null || true
+find ./ -user root -exec chown -R pi:pi {} \;
 
 echo "하드웨어 라이브러리 점검 완료!"
 # end of 임시로직

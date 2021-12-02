@@ -2,7 +2,7 @@
 
 WORK=/home/pi/blockcoding/kt_ai_makers_kit_block_coding_driver
 
-NOW=`date +"%G%m%d%H%M%S"`
+NOW=`date +"%G%m%d_%H%M%S"`
 
 check_internet(){
     echo "checking internet..."
@@ -85,8 +85,6 @@ cd /home/pi/pi-blaster/
 make
 sudo ./pi-blaster
 
-echo "${NOW}" > ${WORK}/.upgrade-completed
-rm -f ${WORK}/.upgrading
 rm -rf /home/pi/.tmp.rescue
 
 echo 

@@ -13,6 +13,8 @@ check_internet(){
 
 check_internet
 
+WORK=/home/pi/blockcoding/kt_ai_makers_kit_block_coding_driver
+cd $WORK/blockDriver
 
 echo "최신 업데이트 코드를 받습니다."
 
