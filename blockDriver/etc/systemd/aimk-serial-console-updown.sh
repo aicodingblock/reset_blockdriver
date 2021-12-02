@@ -44,12 +44,21 @@ check_pc
 
 rm -f $INFO_FILE
 
-echo "is_serial_console = ${is_serial_console}" > /home/pi/log.txt
+# for debug
+# echo "is_serial_console = ${is_serial_console}" > /home/pi/log.txt
+
+#  if [ "$is_serial_console" = "true" ];then
+#      # systemctl stop serial-getty@ttyS0.service
+#      systemctl start serial-getty@ttyUSB0.service
+#  else
+#      # systemctl start serial-getty@ttyS0.service
+#      systemctl stop serial-getty@ttyUSB0.service
+#  fi
 
 if [ "$is_serial_console" = "true" ];then
-    # systemctl stop serial-getty@ttyS0.service
-    systemctl start serial-getty@ttyUSB0.service
+    # systemctl start serial-getty@ttyUSB0.service
+    echo "serial_console true"
 else
-    # systemctl start serial-getty@ttyS0.service
-    systemctl stop serial-getty@ttyUSB0.service
+    # systemctl stop serial-getty@ttyUSB0.service
+    echo "serial_console false"
 fi
