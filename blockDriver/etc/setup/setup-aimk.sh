@@ -16,6 +16,10 @@ ETC=$WORK/blockDriver/etc
 ## for serial console
 bash ${ETC}/systemd/aimk-serial-console-setup.sh
 
+## 콘솔모드가 적용된 버튼 트리거 파이썬
+sudo cp ${ETC}/autorun/button_trigger_4share3.py /home/pi/autorun/py_script/python3/
+sudo cp ${ETC}/autorun/*.wav /home/pi/autorun/py_script/data/
+
 echo "copy aimk scripts to /usr/local/bin"
 
 ## for /usr/local/bin

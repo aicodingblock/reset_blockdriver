@@ -4,12 +4,13 @@ ID_FILE=/home/pi/autorun/serial-console-device-current.txt
 SERVICE_NAME=serial-getty@ttyUSB0.service
 SOUND_START=/home/pi/autorun/py_script/data/console_mode_start.wav
 SOUND_STOP=/home/pi/autorun/py_script/data/console_mode_stop.wav
+SOUND_NO_CABLE=/home/pi/autorun/py_script/data/no_cable.wav
 
 
 # start는 ID_FILE 파일을 만들고, 서비스를 시작한다.
 start(){
     if [ ! -r /dev/ttyUSB0 ];then
-        echo "ttyUSB0 not exists"
+        aplay -q ${SOUND_NO_CABLE} &
         exit 1
     fi
     
@@ -40,7 +41,6 @@ stop() {
 # ID_FILE이 없다면 무시하고 리턴한다.
 # ttyUSB0와 ID_FILE의 ID가 동일하지 않으면 중지한다.(다른 USB를 꽂은 경우이다)
 # ttyUSB0와 ID_FILE의 ID가 동일하면 서비스를 시작한다.
-# ttyUSB0의 DEVICE_ID가
 check() {
     if [ ! -r /dev/ttyUSB0 ];then
         echo "ttyUSB0 not exists"
@@ -63,12 +63,12 @@ check() {
             sudo systemctl stop ${SERVICE_NAME}
         fi
         rm -f $ID_FILE
-        aplay -q ${SOUND_STOP} &
+        aplay -q ${SOUND_STOP} # foreground play
     else
         if ! systemctl is-active ${SERVICE_NAME} >/dev/null; then
             sudo systemctl start ${SERVICE_NAME}
         fi
-        aplay -q ${SOUND_START} &
+        aplay -q ${SOUND_START} # foreground play
     fi
     systemctl is-active ${SERVICE_NAME}
 }
