@@ -25,3 +25,5 @@ sudo chown pi:pi /home/pi/.aicodingblock/bin/*.sh
 sudo chmod +x /home/pi/.aicodingblock/bin/*.sh
 
 sudo systemctl daemon-reload
+sudo systemctl enable aimk-daemon-mgr
+sudo systemctl restart aimk-daemon-mgr
