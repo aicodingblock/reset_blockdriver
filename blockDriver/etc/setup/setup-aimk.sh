@@ -14,7 +14,7 @@ WORK=/home/pi/blockcoding/kt_ai_makers_kit_block_coding_driver
 ETC=$WORK/blockDriver/etc
 
 ## for serial console
-bash ${ETC}/systemd/aimk-serial-console-setup.sh
+bash ${ETC}/systemd/aimk-systemd-setup.sh
 
 ## 콘솔모드가 적용된 버튼 트리거 파이썬
 sudo cp ${ETC}/autorun/button_trigger_4share3.py /home/pi/autorun/py_script/python3/

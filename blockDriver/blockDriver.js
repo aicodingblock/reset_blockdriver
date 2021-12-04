@@ -1,23 +1,24 @@
 const http = require('http')
 const { exec } = require('child_process')
 const { program } = require('commander')
-const { execQuietlyAsync } = require('./lib-block-driver/process-utils')
+const { execQuietlyAsync, execAsync } = require('./lib-block-driver/process-utils')
 const { createWebServer } = require('./lib-block-driver/createWebServer')
 const { createSocketIoServer } = require('./lib-block-driver/createSocketIoServer')
 const { onNewClient, onReadyWebSocketServer } = require('./lib-block-driver/clientHandler')
 
-const programArg = program
-    .version('0.1')
-    .option('-a,--autorun', 'from Autorun')
-    .parse(process.argv)
+// const programArg = program
+//     .version('0.1')
+//     .option('-a,--autorun', 'from Autorun')
+//     .parse(process.argv)
 
-if (!programArg.autorun) {
-    //if not autorun kill python button_trigger_4share3.py
-    exec('sudo systemctl stop aimk_auto')
-} else {
-    console.log('disable stop python')
-}
+// if (!programArg.autorun) {
+//     exec('sudo systemctl stop aimk_auto')
+// } else {
+//     console.log('disable stop python')
+// }
 
+
+execQuietlyAsync(`sudo mkdir -p /var/run/aimk && sudo echo ${process.pid} > /var/run/aimk/blockDriver.pid`)
 
 // kill pi-blaster
 function killPiBlaster() {
@@ -29,34 +30,62 @@ function killOzoServer() {
     return execQuietlyAsync(`ps -ef | grep "python3 ./ozo_server" | grep -v grep | awk '{print $2}' | xargs sudo kill -9 2> /dev/null`)
 }
 
-// restart pi-blaster
-killPiBlaster().finally(() => execQuietlyAsync('cd /home/pi/pi-blaster/ && sudo ./pi-blaster'))
 
-// restart ozo-server
-killOzoServer().finally(() => execQuietlyAsync('sudo python3 ./ozo_server.py'))
+async function prepare() {
+    try {
+        await execAsync('/usr/local/bin/aimk-button-serial-console.sh stop')
+    } catch (ignore) {
+        console.log('aimk-button-serial-console.sh stop: ignore error,' + ignore.message)
+    }
 
-const io = createSocketIoServer()
+    try {
+        await execAsync('sudo systemctl stop aimk_auto')
+    } catch (ignore) {
+        console.log('sudo systemctl stop aimk_auto: ignore error,' + ignore.message)
+    }
 
-io.on('connection', onNewClient)
+    // restart pi-blaster
+    await killPiBlaster().finally(() => execQuietlyAsync('cd /home/pi/pi-blaster/ && sudo ./pi-blaster'))
 
-io.on('disconnect', function (arg) {
-    console.log('on disconnect', arg)
-})
+    // restart ozo-server
+    await killOzoServer().finally(() => execQuietlyAsync('sudo python3 ./ozo_server.py'))
+}
 
-// socket io server start
-io.listen(3001)
+async function main() {
+    // 준비 과정을 마친 후에 메인 함수를 실행한다
+    try {
+        await prepare()
+    } catch (err) {
+        console.log('error occured on preparing:', err.message)
+    }
 
-// 서버가 준비되면 GPIO 이벤트를 감시하기 시작한다
-onReadyWebSocketServer(io)
+    const io = createSocketIoServer()
 
-// for devkey
-const uploadDir = __dirname + '/key/'
-const app = createWebServer({ uploadDir })
-http.createServer(app).listen(3002, function () {
-    console.log('http server start')
-})
+    io.on('connection', onNewClient)
 
-process.on('beforeExit', () => {
-    killPiBlaster()
-    killOzoServer()
-})
+    io.on('disconnect', function (arg) {
+        console.log('on disconnect', arg)
+    })
+
+    // socket io server start
+    io.listen(3001)
+
+    // 서버가 준비되면 GPIO 이벤트를 감시하기 시작한다
+    onReadyWebSocketServer(io)
+
+    // for devkey
+    const uploadDir = __dirname + '/key/'
+    const app = createWebServer({ uploadDir })
+    http.createServer(app).listen(3002, function () {
+        console.log('http server start')
+    })
+
+    process.on('beforeExit', () => {
+        killPiBlaster()
+        killOzoServer()
+    })
+
+}
+
+
+main()

@@ -17,6 +17,10 @@ sudo cp serial-getty@ttyUSB0.service /etc/systemd/system/
 sudo cp 99-aimk-serial-console.rules /etc/udev/rules.d/
 sudo cp aimk-serial-console-updown.sh /home/pi/.aicodingblock/bin/
 
+echo "setup aimk daemon mgr"
+sudo cp aimk-daemon-mgr.service /etc/systemd/system/
+sudo cp aimk-daemon-mgr.sh /home/pi/.aicodingblock/bin/
+
 sudo chown pi:pi /home/pi/.aicodingblock/bin/*.sh
 sudo chmod +x /home/pi/.aicodingblock/bin/*.sh
 

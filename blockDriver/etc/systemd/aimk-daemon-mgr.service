@@ -1,0 +1,9 @@
+[Unit]
+Description=aimk daemon mgr
+After=network-online.target
+ 
+[Service]
+ExecStart=/home/pi/.aicodingblock/bin/aimk-daemon-mgr.sh
+ 
+[Install]
+WantedBy=multi-user.target
