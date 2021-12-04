@@ -1,7 +1,7 @@
 #!/bin/sh
 
 ID_FILE=/home/pi/autorun/serial-console-device-current.txt
-SERVICE_NAME=serial-getty@ttyUSB0.service
+SERVICE=serial-getty@ttyUSB0.service
 SOUND_START=/home/pi/autorun/py_script/data/console_mode_start.wav
 SOUND_STOP=/home/pi/autorun/py_script/data/console_mode_stop.wav
 SOUND_NO_CABLE=/home/pi/autorun/py_script/data/no_cable.wav
@@ -20,19 +20,19 @@ start(){
     fi
     
     sudo echo $DEVICE_ID > $ID_FILE
-    if ! systemctl is-active ${SERVICE_NAME} >/dev/null; then
-        sudo systemctl start ${SERVICE_NAME}
+    if ! systemctl is-active ${SERVICE} >/dev/null; then
+        sudo systemctl start ${SERVICE}
     fi
-    systemctl is-active ${SERVICE_NAME}
+    systemctl is-active ${SERVICE}
     aplay -q ${SOUND_START} &
 }
 
 stop() {
-    if systemctl is-active ${SERVICE_NAME} >/dev/null; then
-        sudo systemctl stop ${SERVICE_NAME}
+    if systemctl is-active ${SERVICE} >/dev/null; then
+        sudo systemctl stop ${SERVICE}
     fi
     rm -f $ID_FILE
-    systemctl is-active ${SERVICE_NAME}
+    systemctl is-active ${SERVICE}
     aplay -q ${SOUND_STOP} &
 }
 
@@ -59,18 +59,18 @@ check() {
     
     DEVICE_ID=`udevadm info /dev/ttyUSB0 | grep 'ID_SERIAL=' | awk -F'=' '{print $2}'`
     if [ "$devId" != "$DEVICE_ID" ];then
-        if systemctl is-active ${SERVICE_NAME} >/dev/null; then
-            sudo systemctl stop ${SERVICE_NAME}
+        if systemctl is-active ${SERVICE} >/dev/null; then
+            sudo systemctl stop ${SERVICE}
         fi
         rm -f $ID_FILE
         aplay -q ${SOUND_STOP} # foreground play
     else
-        if ! systemctl is-active ${SERVICE_NAME} >/dev/null; then
-            sudo systemctl start ${SERVICE_NAME}
+        if ! systemctl is-active ${SERVICE} >/dev/null; then
+            sudo systemctl start ${SERVICE}
         fi
         aplay -q ${SOUND_START} # foreground play
     fi
-    systemctl is-active ${SERVICE_NAME}
+    systemctl is-active ${SERVICE}
 }
 
 
