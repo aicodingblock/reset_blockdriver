@@ -44,11 +44,11 @@ async function prepare() {
         console.log('sudo systemctl stop aimk_auto: ignore error,' + ignore.message)
     }
 
-    // restart pi-blaster
-    await killPiBlaster().finally(() => execQuietlyAsync('cd /home/pi/pi-blaster/ && sudo ./pi-blaster'))
+    // restart pi-blaster on background
+    killPiBlaster().finally(() => execQuietlyAsync('cd /home/pi/pi-blaster/ && sudo ./pi-blaster'))
 
-    // restart ozo-server
-    await killOzoServer().finally(() => execQuietlyAsync('sudo python3 ./ozo_server.py'))
+    // restart ozo-server on background
+    killOzoServer().finally(() => execQuietlyAsync('sudo python3 ./ozo_server.py'))
 }
 
 async function main() {
