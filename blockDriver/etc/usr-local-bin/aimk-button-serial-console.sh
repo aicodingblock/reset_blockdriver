@@ -28,12 +28,14 @@ start(){
 }
 
 stop() {
+    rm -f $ID_FILE
     if systemctl is-active ${SERVICE} >/dev/null; then
         sudo systemctl stop ${SERVICE}
+        aplay -q ${SOUND_STOP} &
     fi
-    rm -f $ID_FILE
+    
     systemctl is-active ${SERVICE}
-    aplay -q ${SOUND_STOP} &
+    
 }
 
 # ttyUSB0가 없는 경우는 자동으로 중지되므로 무시해도 된다.
@@ -43,17 +45,17 @@ stop() {
 # ttyUSB0와 ID_FILE의 ID가 동일하면 서비스를 시작한다.
 check() {
     if [ ! -r /dev/ttyUSB0 ];then
-        echo "ttyUSB0 not exists"
+        # echo "ttyUSB0 not exists"
         exit 1
     fi
     
     if [ ! -r $ID_FILE ];then
-        echo "ID_FILE not exists"
+        # echo "ID_FILE not exists"
         exit 1
     fi
     read devId < $ID_FILE
     if [ -z "$devId" ];then
-        echo "ID_FILE empty"
+        # echo "ID_FILE empty"
         exit 1
     fi
     
