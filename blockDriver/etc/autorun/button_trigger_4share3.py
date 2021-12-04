@@ -227,8 +227,10 @@ async def main():
         GPIO.add_event_detect(
             29, GPIO.BOTH, callback=gesture_detector.on_change_gpio, bouncetime=10)
 
-        await asyncio.sleep(3)
-        on_booting()
+        if not os.path.isfile('/tmp/aimk/.button_handler_on_boot'):
+            os.system("sudo mkdir /tmp/aimk && sudo touch /tmp/aimk/.button_handler_on_boot")
+            await asyncio.sleep(3)
+            on_booting()
 
         # 버튼을 계속 누르는 상태를 체크한다
         # n초 동안 누르고 있으면 콘솔 모드를 토글한다
@@ -247,7 +249,6 @@ async def main():
         GPIO.cleanup()
 
 
-# 종료되어도 xdg 데몬에 의해 즉시 재시작된다
 if __name__ == '__main__':
     try:
         loop = asyncio.get_event_loop()
