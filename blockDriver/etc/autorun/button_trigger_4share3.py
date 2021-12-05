@@ -228,7 +228,7 @@ async def main():
             29, GPIO.BOTH, callback=gesture_detector.on_change_gpio, bouncetime=10)
 
         if not os.path.isfile('/tmp/aimk/.button_handler_on_boot'):
-            os.system("sudo mkdir /tmp/aimk && sudo touch /tmp/aimk/.button_handler_on_boot")
+            os.system("sudo mkdir -p /tmp/aimk && sudo touch /tmp/aimk/.button_handler_on_boot")
             await asyncio.sleep(3)
             on_booting()
 
