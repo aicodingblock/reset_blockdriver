@@ -152,11 +152,10 @@ class AutoRunHandler(object):
         print("Start AI Coding Block Button Execution ...")
         # cmdline=['setsid', AUTO_RUN_CMD, autorun_url]
         # subprocess.call(cmdline, env={ "DISPLAY":":0.0", "XAUTHORITY":"/home/pi/.Xauthority" }, shell=False)
-        play_audio_background('bc_script.wav')  # 버튼 실행을 시작합니다
+        play_audio('bc_script.wav')  # 버튼 실행을 시작합니다
+        GPIO.output(31, False)
         cmdline = ['lxterminal', '-e', AUTO_RUN_CMD + ' ' + autorun_url]
         os.system(' '.join(cmdline) + ' &')
-        time.sleep(1.0)
-        GPIO.output(31, False)
 
 
 # n초 동안 누르고 있으면 콘솔모드를 토글한다.
