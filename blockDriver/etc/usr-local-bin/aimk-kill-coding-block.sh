@@ -8,7 +8,7 @@
 SOUND_STOP=/home/pi/autorun/py_script/data/stop_codingblock.wav
 
 # kill browser
-sudo killall -9 chromium-browser-v7
+sudo killall -9 /usr/lib/chromium-browser/chromium-browser-v7
 
 # kill coding block
 if [ -r /var/run/aimk/blockDriver.pid ]; then 
