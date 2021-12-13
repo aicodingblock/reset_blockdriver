@@ -4,6 +4,7 @@ const sensor = require('node-dht-sensor')
 const { createLegacyDeviceController } = require('./createLegacyDeviceController')
 const { DeviceControllerV2 } = require('./DeviceControllerV2')
 const { broadcastGpioEvent } = require('./broadcastGpioEvent')
+const { CodingpackManagerController } = require('./CodingpackManagerController')
 
 const config = require('../config')
 const DEBUG = config.debug
@@ -11,6 +12,13 @@ const DEBUG = config.debug
 const DEVICE_CTL_REQUEST_V1 = 'deviceCtlMsg'
 const DEVICE_CTL_REQUEST_V2 = 'deviceCtlMsg_v2:request'
 const DEVICE_CTL_RESPONSE_V2 = 'deviceCtlMsg_v2:response'
+
+/**
+ * 코딩팩 관리 요청
+ * 코딩팩 관리에 대한 요청이다.
+ * 20211214 현재는 오토런 URL 등록과, 코딩팩 정보 기능을 제공한다.
+ */
+const CODINGPACK_MANAGER_REQUEST = 'manager:request'
 
 let hasKey = false
 
@@ -22,6 +30,7 @@ legacyDeviceController.setSensor(sensor)
 // V2 디바이스 제어 핸들러
 const deviceControllerV2 = new DeviceControllerV2()
 
+const managerController = new CodingpackManagerController()
 
 /**
  * socket.io 서버가 준비되었을때 호출되는 함수
@@ -83,6 +92,16 @@ function onNewClient(socket) {
         }
     }
 
+    // 관리 메시지
+    const onMessageManager = async (msg) => {
+        console.log(CODINGPACK_MANAGER_REQUEST, msg)
+        try {
+            await managerController.handle(socket, msg)
+        } catch (err) {
+            console.log(`handle ${CODINGPACK_MANAGER_REQUEST} fail:`, err.message)
+        }
+    }
+
     // 재부팅
     const onReboot = () => {
         setTimeout(function () {
@@ -114,6 +133,7 @@ function onNewClient(socket) {
 
     socket.on(DEVICE_CTL_REQUEST_V1, onMessageV1)
     socket.on(DEVICE_CTL_REQUEST_V2, onMessageV2)
+    socket.on(CODINGPACK_MANAGER_REQUEST, onMessageManager)
     socket.on('kill', onKill)
     socket.on('reboot', onReboot)
     socket.once('disconnect', async function (reason) {
@@ -122,6 +142,7 @@ function onNewClient(socket) {
 
         socket.off(DEVICE_CTL_REQUEST_V1, onMessageV1)
         socket.off(DEVICE_CTL_REQUEST_V2, onMessageV2)
+        socket.off(CODINGPACK_MANAGER_REQUEST, onMessageManager)
         socket.off('kill', onKill)
         socket.off('reboot', onReboot)
 
