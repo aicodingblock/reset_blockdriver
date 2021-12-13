@@ -5,7 +5,7 @@ sudo touch /tmp/aimk/.button-daemon-disabled
 
 /usr/local/bin/aimk-button-daemon-ctl.sh stop
 
-# 콘솔모드 종료, 소리가 나므로 메시지는 표시할 필요 없음
+# 콘솔모드 종료
 /usr/local/bin/aimk-button-serial-console.sh stop
 
 sudo killall python3 2> /dev/null

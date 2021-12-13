@@ -23,9 +23,11 @@ START_PAGE=$1
 
 if [ -z "${START_PAGE}" ];then
     START_PAGE=https://aicodingblock.kt.co.kr/
+    echo "AI 코딩블럭을 시작합니다."
+else
+    echo "오토런을 시작합니다"
 fi
 
-echo "AI 코딩블럭을 시작합니다.";
 
 setsid /usr/bin/chromium-browser \
     --profile-directory=Default \

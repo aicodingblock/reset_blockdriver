@@ -22,8 +22,12 @@ start(){
     echo $DEVICE_ID > $ID_FILE
     if ! systemctl is-active ${SERVICE} >/dev/null; then
         sudo systemctl start ${SERVICE}
+        echo "콘솔 모드를 시작합니다"
+    else
+        echo "콘솔 모드가 이미 실행중입니다"
     fi
-    systemctl is-active ${SERVICE}
+    # systemctl is-active ${SERVICE}
+    
     aplay -q ${SOUND_START} &
 }
 
@@ -31,11 +35,12 @@ stop() {
     rm -f $ID_FILE
     if systemctl is-active ${SERVICE} >/dev/null; then
         sudo systemctl stop ${SERVICE}
+        echo "콘솔 모드를 종료합니다"
         aplay -q ${SOUND_STOP} &
+    else
+        echo "콘솔 모드가 이미 종료되었습니다"
     fi
-    
-    systemctl is-active ${SERVICE}
-    
+    # systemctl is-active ${SERVICE}
 }
 
 # ttyUSB0가 없는 경우는 자동으로 중지되므로 무시해도 된다.
@@ -65,14 +70,16 @@ check() {
             sudo systemctl stop ${SERVICE}
         fi
         rm -f $ID_FILE
+        echo "콘솔 모드를 종료합니다"
         aplay -q ${SOUND_STOP} # foreground play
     else
         if ! systemctl is-active ${SERVICE} >/dev/null; then
             sudo systemctl start ${SERVICE}
         fi
+        echo "콘솔 모드를 시작합니다"
         aplay -q ${SOUND_START} # foreground play
     fi
-    systemctl is-active ${SERVICE}
+    # systemctl is-active ${SERVICE}
 }
 
 
