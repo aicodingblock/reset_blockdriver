@@ -19,7 +19,7 @@ start(){
         exit 1
     fi
     
-    sudo echo $DEVICE_ID > $ID_FILE
+    echo $DEVICE_ID > $ID_FILE
     if ! systemctl is-active ${SERVICE} >/dev/null; then
         sudo systemctl start ${SERVICE}
     fi

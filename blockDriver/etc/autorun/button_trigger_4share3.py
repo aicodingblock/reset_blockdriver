@@ -2,21 +2,25 @@
 # -*- coding: utf-8 -*-
 from __future__ import generator_stop, print_function
 
-import RPi.GPIO as GPIO
-import time
-import os
-import signal
-import glob
-import subprocess
-import MicrophoneStream as MS
+# import MicrophoneStream as MS
 import asyncio
-import sys
 import http.client as httplib
+import os
+import sys
+import time
+from pathlib import Path
+
+import RPi.GPIO as GPIO
 
 # this file called from /etc/xdg/lxsession/LXDE-pi/autostart
 
 DEBUG = False
 loop = None
+
+# 부팅시 오토런 실행할 지 여부
+# 부팅할 때 오토런이 실행되면 콘솔모드가 종료되어
+# PC에서 연결할 방법이 없다. 그래서 사용안함, 항상 False
+ENABLE_ON_BOOT_AUTO_RUN = False
 
 # 길게 누르기를 체크하는 시간
 # 이 시간 이상은 체크할 필요가 없다.
@@ -35,12 +39,30 @@ GPIO.setmode(GPIO.BOARD)
 GPIO.setup(29, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 GPIO.setup(31, GPIO.OUT)
 
-key_path = '/home/pi/blockcoding/kt_ai_makers_kit_block_coding_driver/blockDriver/key/codingPackKey.json'
+# key_path = '/home/pi/blockcoding/kt_ai_makers_kit_block_coding_driver/blockDriver/key/codingPackKey.json'
+AUTO_RUN_FILE = '/home/pi/autorun/url.txt'
+AUTO_RUN_CMD = '/home/pi/blockcoding/kt_ai_makers_kit_block_coding_driver/blockDriver/runBlock.sh'
+
+
+def read_auto_run_url(filepath):
+    p = Path(filepath)
+    if not p.exists():
+        return None
+    contents = p.read_text()
+    if contents is None:
+        return None
+    lines = [x for x in contents.splitlines(keepends=False) if
+             x.startswith('https://') or x.startswith('http://')]
+    if len(lines) > 0:
+        return lines[0]
+    return None
 
 
 # 소리 재생, 재생중 현재 프로세스가 멈춘다
 def play_audio(filename):
-    MS.play_file("/home/pi/autorun/py_script/data/" + filename)
+    # MS.play_file("/home/pi/autorun/py_script/data/" + filename)
+    fpath = "/home/pi/autorun/py_script/data/" + filename
+    os.system("aplay -q " + fpath)
 
 
 # 소리 재생, 백그라운드 재생
@@ -104,68 +126,36 @@ class ButtonGestureDetector:
             self._on_press_up(pin)
 
 
-# 20211204 기존에 사용하던 버튼 핸들러, 기존 코드를 유지했음
-class ButtonExe(object):
+# 버튼 실행 핸들러
+class AutoRunHandler(object):
     def __init__(self):
-        print("__init__ button execution")
+        print("__init__ AutoRunHandler")
 
-    def find_file(self, path):
-        path = path + '*'
-        # * means all if need specific  format then *.csv
-        list_of_files = glob.glob(path)
-        latest_file = max(list_of_files, key=os.path.getctime)
-        print(type(latest_file))
-        print(latest_file)
-        return latest_file
-
-    def kill_waste_proc(self):
-        proc1 = subprocess.Popen(['ps', '-ef'], stdout=subprocess.PIPE)
-        proc2 = subprocess.Popen(
-            ['grep', 'v7'], stdin=proc1.stdout, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-
-        # Allow proc1 to receive a SIGPIPE if proc2 exits.
-        proc1.stdout.close()
-        out, err = proc2.communicate()
-        print('out: {0}'.format(out))
-        print('err: {0}'.format(err))
-
-        for line in out.splitlines():
-            line = line.decode()
-            if 'v7' in line:
-                if 'grep' not in line:
-                    pid = line.split(None, 1)[1]
-                    pid = int(pid.split(' ', 1)[0])
-                    print(pid)
-                    os.kill(pid, signal.SIGKILL)
-        os.system('ps -ef | grep block')
-
-    def execute_codingpack(self):
-        if not internet_available():
-            print("Network not Connected...")
-            play_audio('no_wifi.wav')
+    def execute(self):
+        # 오토런 파일이 없습니다
+        autorun_url = read_auto_run_url(AUTO_RUN_FILE)
+        if autorun_url is None:
+            print("No key...")
+            GPIO.output(31, True)
+            play_audio('no_key.wav')
+            GPIO.output(31, False)
             return
 
-        if not os.path.exists(key_path):
-            print("No key...")
-            play_audio('no_key.wav')
+        if not internet_available():
+            GPIO.output(31, True)
+            print("Network not Connected...")
+            play_audio('no_wifi.wav')
+            GPIO.output(31, False)
             return
 
         GPIO.output(31, True)
         print("Start AI Coding Block Button Execution ...")
-        play_audio('bc_script.wav')  # 버튼 실행을 시작합니다
-        print("Block coding mention Finshed...")
-        result = self.find_file('/home/pi/autorun/block/')
-        self.kill_waste_proc()
-        print("\n\n\n###### Checking Block Coding Process End........######")
-        os.system('ps -ef | grep block')
-        if not result:
-            print("File Not Found... \n")
-        else:
-            print("execute  blocking    code idle....\n")
-            subprocess.call(['./block_autorun.sh', result],
-                            cwd='/home/pi/blockcoding/kt_ai_makers_kit_block_coding_driver/blockDriver')
-            print("Block Coding Script Process Finshed...")
-        self.kill_waste_proc()
+        # cmdline=['setsid', AUTO_RUN_CMD, autorun_url]
+        # subprocess.call(cmdline, env={ "DISPLAY":":0.0", "XAUTHORITY":"/home/pi/.Xauthority" }, shell=False)
+        play_audio_background('bc_script.wav')  # 버튼 실행을 시작합니다
+        cmdline = ['lxterminal', '-e', AUTO_RUN_CMD + ' ' + autorun_url]
+        os.system(' '.join(cmdline) + ' &')
+        time.sleep(1.0)
         GPIO.output(31, False)
 
 
@@ -192,17 +182,24 @@ class ConsoleButtonHandler:
         os.system('/usr/local/bin/aimk-button-serial-console.sh toggle &')
 
 
-btn = ButtonExe()
+autorun_handler = AutoRunHandler()
 
 
+#
+# 아래 함수는 제거할 예정
+#
 # 프로그램이 시작될 때 호출되는 함수
+# 부팅할 때 오토런이 실행되면 콘솔모드가 종료되어
+# PC에서 연결할 방법이 없다. 그래서 사용안함
 def on_booting():
     # 부팅할때 콘솔모드를 시작할지 체크해야 하는데
     # udev에 의해 자동으로 aimk-button-serial-console.sh가 실행되므로 여기서는 호출안함
     # os.system('/usr/local/bin/aimk-button-serial-console.sh check')
 
-    # 부팅시점 호출, 인터넷 체크 등
-    btn.execute_codingpack()
+    autorun_url = read_auto_run_url(AUTO_RUN_FILE)
+    if autorun_url is None:
+        return
+    autorun_handler.execute()
 
 
 # 버튼에서 손을 땐 경우에 호출
@@ -214,7 +211,7 @@ def handle_press_up(pressed_time_milli):
         # 너무 짧게 터치한 경우다
         print('skip too short press up:', pressed_time_milli)
     elif pressed_time_milli < 2000:
-        btn.execute_codingpack()
+        autorun_handler.execute()
 
 
 async def main():
@@ -227,10 +224,12 @@ async def main():
         GPIO.add_event_detect(
             29, GPIO.BOTH, callback=gesture_detector.on_change_gpio, bouncetime=10)
 
-        if not os.path.isfile('/tmp/aimk/.button_handler_on_boot'):
-            os.system("sudo mkdir -p /tmp/aimk && sudo touch /tmp/aimk/.button_handler_on_boot")
-            await asyncio.sleep(3)
-            on_booting()
+        # 부팅시 오토런
+        if ENABLE_ON_BOOT_AUTO_RUN:
+            if not os.path.isfile('/tmp/aimk/.button_handler_on_boot'):
+                os.system("sudo mkdir -p /tmp/aimk && sudo touch /tmp/aimk/.button_handler_on_boot")
+                await asyncio.sleep(3)
+                on_booting()
 
         # 버튼을 계속 누르는 상태를 체크한다
         # n초 동안 누르고 있으면 콘솔 모드를 토글한다

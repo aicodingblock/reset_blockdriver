@@ -6,18 +6,6 @@ const { createWebServer } = require('./lib-block-driver/createWebServer')
 const { createSocketIoServer } = require('./lib-block-driver/createSocketIoServer')
 const { onNewClient, onReadyWebSocketServer } = require('./lib-block-driver/clientHandler')
 
-// const programArg = program
-//     .version('0.1')
-//     .option('-a,--autorun', 'from Autorun')
-//     .parse(process.argv)
-
-// if (!programArg.autorun) {
-//     exec('sudo systemctl stop aimk_auto')
-// } else {
-//     console.log('disable stop python')
-// }
-
-
 execQuietlyAsync(`sudo mkdir -p /var/run/aimk && sudo echo ${process.pid} > /var/run/aimk/blockDriver.pid`)
 
 // kill pi-blaster
@@ -39,9 +27,9 @@ async function prepare() {
     }
 
     try {
-        await execAsync('sudo systemctl stop aimk_auto')
+        await execAsync('/usr/local/bin/aimk-button-daemon-ctl.sh stop')
     } catch (ignore) {
-        console.log('sudo systemctl stop aimk_auto: ignore error,' + ignore.message)
+        console.log('/usr/local/bin/aimk-button-daemon-ctl.sh stop: ignore error,' + ignore.message)
     }
 
     // restart pi-blaster on background

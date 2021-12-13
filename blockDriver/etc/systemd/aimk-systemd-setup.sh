@@ -14,12 +14,27 @@ echo "setup aimk serial console"
 
 sudo cp aimk-serial-console.service /etc/systemd/system/
 sudo cp serial-getty@ttyUSB0.service /etc/systemd/system/
+
 sudo cp 99-aimk-serial-console.rules /etc/udev/rules.d/
 sudo cp aimk-serial-console-updown.sh /home/pi/.aicodingblock/bin/
+
+
+# aimk auto는 제거
+# echo "setup aimk auto"
+# sudo cp aimk_auto.service /lib/systemd/system/
+if [ -f /lib/systemd/system/aimk_auto.service ]; then
+    sudo systemctl stop aimk_auto || true
+    sudo systemctl disable aimk_auto || true
+    sudo rm -f /lib/systemd/system/aimk_auto.service
+fi
+
 
 echo "setup aimk daemon mgr"
 sudo cp aimk-daemon-mgr.service /etc/systemd/system/
 sudo cp aimk-daemon-mgr.sh /home/pi/.aicodingblock/bin/
+
+echo "setup aimk button daemon mgr"
+sudo cp aimk-button-daemon-mgr.sh /home/pi/.aicodingblock/bin/
 
 sudo chown pi:pi /home/pi/.aicodingblock/bin/*.sh
 sudo chmod +x /home/pi/.aicodingblock/bin/*.sh

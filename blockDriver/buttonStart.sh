@@ -1,6 +1,9 @@
 #!/bin/sh
 
-sudo systemctl start aimk_auto.service
+sudo mkdir -p /tmp/aimk/
+sudo rm -f /tmp/aimk/.button-daemon-disabled
+
+/usr/local/bin/aimk-button-daemon-ctl.sh start
 
 # 콘솔모드 체크, 소리가 나므로 메시지는 표시할 필요 없음
 /usr/local/bin/aimk-button-serial-console.sh check

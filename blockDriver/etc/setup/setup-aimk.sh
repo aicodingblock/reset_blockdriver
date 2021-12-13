@@ -20,9 +20,15 @@ bash ${ETC}/systemd/aimk-systemd-setup.sh
 sudo cp ${ETC}/autorun/button_trigger_4share3.py /home/pi/autorun/py_script/python3/
 sudo cp ${ETC}/autorun/*.wav /home/pi/autorun/py_script/data/
 
-echo "copy aimk scripts to /usr/local/bin"
+echo "setup aimk xdg autostart"
+sudo cp ${ETC}/xdg/autostart /etc/xdg/lxsession/LXDE-pi/
 
-## for /usr/local/bin
+# 라파3의 autostart 위치에도 복사
+if [ -r /home/pi/.config/lxsession/LXDE-pi/autostart ];then
+    cp ${ETC}/xdg/autostart /home/pi/.config/lxsession/LXDE-pi/
+fi
+
+echo "copy aimk scripts to /usr/local/bin"
 sudo cp ${ETC}/usr-local-bin/* /usr/local/bin/
 
 ## chmod scripts for aimk prefix

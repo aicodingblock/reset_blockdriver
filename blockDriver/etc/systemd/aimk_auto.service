@@ -1,0 +1,21 @@
+#####
+# aimk_auto.service는 사용하지 않는다
+#####
+
+[Unit]
+Description=aimk auto
+Requires=graphical.target
+After=graphical.target
+
+[Service]
+User=pi
+Environment=DISPLAY=:0.0
+Environment=XAUTHORITY=/home/pi/.Xauthority
+Type=simple
+ExecStart=/usr/bin/python3 /home/pi/autorun/py_script/python3/button_trigger_4share3.py
+
+
+[Install]
+WantedBy=graphical.target
+
+
