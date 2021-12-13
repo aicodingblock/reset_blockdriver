@@ -1,6 +1,4 @@
 const http = require('http')
-const { exec } = require('child_process')
-const { program } = require('commander')
 const { execQuietlyAsync, execAsync } = require('./lib-block-driver/process-utils')
 const { createWebServer } = require('./lib-block-driver/createWebServer')
 const { createSocketIoServer } = require('./lib-block-driver/createSocketIoServer')
