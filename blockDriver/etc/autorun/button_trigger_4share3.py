@@ -137,7 +137,7 @@ class AutoRunHandler(object):
         if autorun_url is None:
             print("No key...")
             GPIO.output(31, True)
-            play_audio('no_key.wav')
+            play_audio('no_autorun_project.wav')
             GPIO.output(31, False)
             return
 
