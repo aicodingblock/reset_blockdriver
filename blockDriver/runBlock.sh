@@ -8,7 +8,6 @@ ID_FILE_BAK=/home/pi/autorun/serial-console-device-current.txt.bak
 
 
 # 시리얼 콘솔 디바이스ID가 등록되어 있다면 백업한다
-sudo rm -f $ID_FILE_BAK
 if [ -f $ID_FILE ]; then
     sudo mv $ID_FILE $ID_FILE_BAK
 fi
@@ -31,6 +30,9 @@ else
     echo "오토런을 시작합니다"
 fi
 
+# --disable-web-security # 웹보안 비활성화: 개발시 사용
+# --incognito # 시큐리티모드
+# --autoplay-policy # 사용자 인터렉션없이도 오디오 재생
 
 setsid /usr/bin/chromium-browser \
     --profile-directory=Default \
