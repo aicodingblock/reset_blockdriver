@@ -10,7 +10,7 @@ function _unquote(str, q) {
 
 function unquote(str) {
     str = _unquote(str, "'")
-    return _unquote('"')
+    return _unquote(str, '"')
 }
 
 
