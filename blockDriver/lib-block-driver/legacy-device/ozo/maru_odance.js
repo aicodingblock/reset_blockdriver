@@ -1,7 +1,7 @@
 const { OzoStatusChecker, ozoExec } = require("./ozo-util")
 
 async function maru_odance(socket) {
-    let result = await ozoExec('maru_odance')
+    let result = await ozoExec('maru_odance') ?? ''
     result = result.replace(/\n/g, '')
     console.log('result ' + result)
     if (result == 'waiting') {

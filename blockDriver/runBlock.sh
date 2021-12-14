@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+SCRIPT_DIR=$(dirname "$(readlink -f "$0")")
+cd "${SCRIPT_DIR}"
+
 ID_FILE=/home/pi/autorun/serial-console-device-current.txt
 ID_FILE_BAK=/home/pi/autorun/serial-console-device-current.txt.bak
 

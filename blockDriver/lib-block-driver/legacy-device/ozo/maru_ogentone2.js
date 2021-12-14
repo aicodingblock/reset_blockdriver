@@ -2,7 +2,7 @@ const { OzoStatusChecker, ozoExec } = require("./ozo-util")
 
 async function maru_ogentone2(socket, msg) {
     const { octno, tone, duration } = msg.data ?? {}
-    let result = await ozoExec('maru_ogentone2', octno, tone, duration)
+    let result = await ozoExec('maru_ogentone2', octno, tone, duration) ?? ''
     result = result.replace(/\n/g, '')
     console.log('result ' + result)
     if (result == 'waiting') {

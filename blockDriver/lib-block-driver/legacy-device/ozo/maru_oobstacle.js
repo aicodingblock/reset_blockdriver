@@ -3,7 +3,7 @@ const { ozoExec } = require("./ozo-util")
 
 async function maru_oobstacle(socket, msg) {
     const { pos } = msg.data ?? {}
-    let ret = await ozoExec('maru_oobstacle', pos)
+    let ret = await ozoExec('maru_oobstacle', pos) ?? ''
     ret = ret.replace(/\n/g, '')
     if (ret == 'False') {
         ret = false

@@ -2,7 +2,7 @@ const { OzoStatusChecker, ozoExec } = require("./ozo-util")
 
 async function maru_orestnote(socket, msg) {
     const { duration } = msg.data ?? {}
-    let result = await ozoExec('maru_orestnote', duration)
+    let result = await ozoExec('maru_orestnote', duration) ?? ''
     result = result.replace(/\n/g, '')
     console.log('result ' + result)
 

@@ -2,7 +2,7 @@ const { OzoStatusChecker, ozoExec } = require("./ozo-util")
 
 async function maru_ozigzag(socket, msg) {
     const { count, direct } = msg.data ?? {}
-    let result = await ozoExec('maru_ozigzag', count, direct)
+    let result = await ozoExec('maru_ozigzag', count, direct) ?? ''
     result = result.replace(/\n/g, '')
     console.log('result ' + result)
     if (result == 'waiting') {

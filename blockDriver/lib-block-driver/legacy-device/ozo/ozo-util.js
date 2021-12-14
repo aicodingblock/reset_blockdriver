@@ -52,7 +52,7 @@ class OzoStatusChecker {
  * ozo_command를 실행하는 함수
  * @param {string} cmd
  * @param  {...any} args
- * @returns
+ * @returns Promise {stdout, stderr}
  */
 function ozoExec(cmd, ...args) {
     return execAsync('python3 ./ozocommand.py', cmd, ...args).stdout
