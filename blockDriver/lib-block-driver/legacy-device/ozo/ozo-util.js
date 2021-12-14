@@ -1,6 +1,20 @@
 const { exec } = require('child_process')
 const { execAsync } = require("../../process-utils")
 
+function _unquote(str, q) {
+    if (!str || str.length <= 1) return str
+    if (str.charAt(0) === q && str.charAt(str.length - 1) === q) {
+        return str.substr(1, str.length - 2)
+    }
+}
+
+function unquote(str) {
+    str = _unquote(str, "'")
+    return _unquote('"')
+}
+
+
+
 const M_TIMEOUT = 500
 class OzoStatusChecker {
 
@@ -61,5 +75,6 @@ function ozoExec(cmd, ...args) {
 
 module.exports = {
     OzoStatusChecker,
-    ozoExec
+    ozoExec,
+    unquote
 }
