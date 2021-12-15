@@ -12,6 +12,11 @@ let deviceId = null
 let deviceModel = null
 
 
+function cleanText(str) {
+    if (!str) return str
+    return str.replace(/[\x00-\x1F\x7F-\x9F]/g, "")
+}
+
 function getDeviceModel() {
     return new Promise((resolve, reject) => {
         if (deviceModel && deviceModel.length > 0) {
@@ -23,6 +28,7 @@ function getDeviceModel() {
                 reject(err)
                 return
             }
+            data = cleanText(data) // 제어문자가 포함되어 있으므로 주의
             deviceModel = data
             resolve(data)
         })
@@ -59,7 +65,7 @@ function getDeviceId() {
                 reject(err)
                 return
             }
-            data = data.trim()
+            data = cleanText(data) // 제어문자가 포함되어 있으므로 주의
             deviceId = data
             resolve(data)
         })
