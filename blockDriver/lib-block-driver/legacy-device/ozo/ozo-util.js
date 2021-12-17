@@ -6,9 +6,12 @@ function _unquote(str, q) {
     if (str.charAt(0) === q && str.charAt(str.length - 1) === q) {
         return str.substr(1, str.length - 2)
     }
+    return str
 }
 
 function unquote(str) {
+    if (!str) return ''
+    str = str.replace(/\n/g, '')
     str = _unquote(str, "'")
     return _unquote(str, '"')
 }
@@ -29,6 +32,7 @@ class OzoStatusChecker {
         }
     }
 
+
     static checkInterval(socket, ret_msg_str) {
         OzoStatusChecker.timerId = setInterval(() => {
             OzoStatusChecker.maruo_waiting_status_check(socket, ret_msg_str)
@@ -42,7 +46,7 @@ class OzoStatusChecker {
                 if (error || stderr) {
                     // Handle error.
                 } else {
-                    ret = stdout
+                    let ret = stdout
                     //console.log(stdout);
                     console.log('time_id' + ozo_timer_id)
                     result = ret.replace(/\n/g, '')

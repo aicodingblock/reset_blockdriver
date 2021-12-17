@@ -1,9 +1,8 @@
-const { OzoStatusChecker, ozoExec } = require("./ozo-util")
+const { OzoStatusChecker, ozoExec, unquote } = require("./ozo-util")
 
 async function maru_orotate1(socket, msg) {
     const { direction, degree } = msg.data ?? {}
-    let result = await ozoExec('maru_orotate1', direction, degree) ?? ''
-    result = result.replace(/\n/g, '')
+    let result = unquote(await ozoExec('maru_orotate1', direction, degree))
     console.log('result ' + result)
     if (result == 'waiting') {
         console.log('Result waiting...')

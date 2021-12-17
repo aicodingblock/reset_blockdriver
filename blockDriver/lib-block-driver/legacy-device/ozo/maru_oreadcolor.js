@@ -1,9 +1,8 @@
-const { ozoExec } = require("./ozo-util")
+const { ozoExec, unquote } = require("./ozo-util")
 
 async function maru_oreadcolor(socket, msg) {
     const { color } = msg.data ?? {}
-    let ret = await ozoExec('maru_oreadcolor', color) ?? ''
-    ret = ret.replace(/\n/g, '')
+    let ret = unquote(await ozoExec('maru_oreadcolor', color))
     if (ret == 'True') {
         ret = true
     } else if (ret == 'False') {

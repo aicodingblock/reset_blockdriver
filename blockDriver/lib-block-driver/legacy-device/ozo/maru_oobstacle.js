@@ -1,10 +1,9 @@
-const { ozoExec } = require("./ozo-util")
+const { ozoExec, unquote } = require("./ozo-util")
 
 
 async function maru_oobstacle(socket, msg) {
     const { pos } = msg.data ?? {}
-    let ret = await ozoExec('maru_oobstacle', pos) ?? ''
-    ret = ret.replace(/\n/g, '')
+    let ret = unquote(await ozoExec('maru_oobstacle', pos))
     if (ret == 'False') {
         ret = false
     } else {
