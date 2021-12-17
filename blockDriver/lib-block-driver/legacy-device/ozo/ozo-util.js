@@ -73,7 +73,7 @@ class OzoStatusChecker {
  * @returns Promise {stdout, stderr}
  */
 function ozoExec(cmd, ...args) {
-    return execAsync('python3 ./ozocommand.py', cmd, ...args).stdout
+    return execAsync('python3 ./ozocommand.py', cmd, ...args).then(it => it.stdout)
 }
 
 

@@ -34,9 +34,13 @@ function execAsync(cmd, ...args) {
     return new Promise((resolve, reject) => {
         exec(cmdline, function (error, stdout, stderr) {
             debugResult(error, stdout, stderr)
+            // process의 종료값이 0이 아닌경우 무조건 error이다
+            // if (error) {
+            //     reject(error)
+            //     return
+            // }
             if (error) {
-                reject(error)
-                return
+                console.warn(error)
             }
             resolve({ stdout, stderr })
         })

@@ -117,6 +117,28 @@ if [ -f ${SETUP_DIR}/setup-aimk.sh ];then
     fi
 fi
 
+rpi_v3="Raspberry Pi 3 Model B"
+rpi_v3b="Raspberry Pi 3 Model B Plus Rev 1.3"
+rpi_v4="Raspberry Pi 4 Model B"
+
+board_model=$(cat /proc/device-tree/model)
+echo $board_model
+case "${board_model}" in
+  *"$rpi_v4"*)
+     echo "Find Board Model: Raspberry Pi 4"
+     cp ${WORK}/blockDriver/package_rpi4.json ${WORK}/blockDriver/package.json
+     cp ${WORK}/blockDriver/rpi4-only/ozolib3_7.so ${WORK}/blockDriver/ozolib.so
+     #cp ${WORK}/blockDriver/bd_reset.js ${WORK}/blockDriver/blockDriver.js
+     ;;
+  *"$rpi_v3"*)
+     echo "Find Board Model: Rasberry Pi 3"
+     cp ${WORK}/blockDriver/package_rpi3.json ${WORK}/blockDriver/package.json
+     cp ${WORK}/blockDriver/rpi3-only/ozolib.so ${WORK}/blockDriver/ozolib.so
+     ;;
+esac
+
+sudo find ${WORK} -user root -exec chown -R pi:pi {} \;
+
 if [ "$succ" = "true" ];then
     echo "업데이트 성공"
 else
