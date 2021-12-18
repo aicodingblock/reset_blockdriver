@@ -50,7 +50,7 @@ class OzoStatusChecker {
                     //console.log(stdout);
                     // console.log('time_id' + OzoStatusChecker.timerId)
                     const result = ret.replace(/\n/g, '')
-                    console.log(result)
+                    // console.log(result)
                     if (result == 'True' || result == 'False') {
                         if (OzoStatusChecker.timerId) {
                             OzoStatusChecker.clearInterval()
