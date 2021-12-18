@@ -1,6 +1,14 @@
 #!/usr/bin/env bash
 
+# last changed at 2021.12.20
+# 오토런 파일을 추가/삭제합니다
+
 AUTO_RUN_FILE=/home/pi/autorun/url.txt
+
+# 잘못된 권한 수정
+if [ -f $AUTO_RUN_FILE ];then
+    sudo chown pi:pi $AUTO_RUN_FILE
+fi
 
 # AUTO_RUN_FILE을 생성
 create() {
