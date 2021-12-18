@@ -53,14 +53,14 @@ sudo chmod +x *.sh
 case "${board_model}" in
   *"$rpi_v4"*)
      echo "Find Board Model: Raspberry Pi 4"
-     cp ${WORK}/blockDriver/package_rpi4.json ${WORK}/blockDriver/package.json
-     cp ${WORK}/blockDriver/rpi4-only/ozolib3_7.so ${WORK}/blockDriver/ozolib.so
+     # cp ${WORK}/blockDriver/package_rpi4.json ${WORK}/blockDriver/package.json
+     cp ${WORK}/blockDriver/rp4-only/ozolib3_7.so ${WORK}/blockDriver/ozolib.so
      #cp ${WORK}/blockDriver/bd_reset.js ${WORK}/blockDriver/blockDriver.js
      ;;
   *"$rpi_v3"*)
      echo "Find Board Model: Rasberry Pi 3"
-     cp ${WORK}/blockDriver/package_rpi3.json ${WORK}/blockDriver/package.json
-     cp ${WORK}/blockDriver/rpi3-only/ozolib.so ${WORK}/blockDriver/ozolib.so
+     # cp ${WORK}/blockDriver/package_rpi3.json ${WORK}/blockDriver/package.json
+     cp ${WORK}/blockDriver/rp3-only/ozolib.so ${WORK}/blockDriver/ozolib.so
      ;;
 esac
 
