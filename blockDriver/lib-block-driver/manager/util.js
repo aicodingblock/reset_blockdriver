@@ -1,5 +1,4 @@
 const os = require('os');
-const { exec } = require('child_process')
 const fs = require('fs')
 
 const CODINGPACK_MANAGER_REQUEST = 'manager:request'
@@ -28,7 +27,7 @@ function getDeviceModel() {
                 reject(err)
                 return
             }
-            data = cleanText(data) // 제어문자가 포함되어 있으므로 주의
+            data = cleanText(data) // 제어문자 제거(null문제 포함됨)
             deviceModel = data
             resolve(data)
         })
@@ -65,7 +64,7 @@ function getDeviceId() {
                 reject(err)
                 return
             }
-            data = cleanText(data) // 제어문자가 포함되어 있으므로 주의
+            data = cleanText(data)
             deviceId = data
             resolve(data)
         })
