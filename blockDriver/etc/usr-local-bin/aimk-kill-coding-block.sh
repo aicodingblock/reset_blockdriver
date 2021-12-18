@@ -8,6 +8,10 @@
 SOUND_STOP=/home/pi/autorun/py_script/data/stop_codingblock.wav
 
 # kill browser
+sudo pkill -o chromium-browser
+
+# pkill로 죽이면 되는데 혹시 몰라서 한번더 KILL
+# 위의 pkill로 죽이면 다음에 크롬띄울때 세션을 복원하겠냐고 안물어본다.
 sudo killall -9 /usr/lib/chromium-browser/chromium-browser-v7
 
 # kill coding block
