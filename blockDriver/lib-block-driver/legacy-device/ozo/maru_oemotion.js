@@ -8,9 +8,9 @@ const SOUNDS = [
 ]
 
 async function maru_oemotion(socket, msg) {
-    const { sound } = msg.data ?? {}
+    const { sound = '' } = msg.data ?? {}
     let result = null
-    if (SOUNDS.includes(data)) {
+    if (SOUNDS.includes(sound)) {
         result = await ozoExec('maru_oemotion', sound)
     }
     return {
