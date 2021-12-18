@@ -46,9 +46,9 @@ class OzoStatusChecker {
                 if (error || stderr) {
                     // Handle error.
                 } else {
-                    let ret = stdout
+                    let ret = unquote(stdout)
                     //console.log(stdout);
-                    console.log('time_id' + ozo_timer_id)
+                    // console.log('time_id' + OzoStatusChecker.timerId)
                     result = ret.replace(/\n/g, '')
                     console.log(result)
                     if (result == 'True' || result == 'False') {
