@@ -21,7 +21,7 @@ rpi_v3="Raspberry Pi 3 Model B"
 rpi_v3b="Raspberry Pi 3 Model B Plus Rev 1.3"
 rpi_v4="Raspberry Pi 4 Model B"
 
-board_model=$(cat /proc/device-tree/model)
+board_model=`tr -d '\000' < /proc/device-tree/model`
 echo $board_model
 
 # check nodejs upgrade
