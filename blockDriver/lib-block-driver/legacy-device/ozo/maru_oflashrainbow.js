@@ -1,12 +1,10 @@
-const { OzoStatusChecker, ozoExec, unquote } = require("./ozo-util")
+const { OzoStatusChecker, ozoExec } = require("./ozo-util")
 
 async function maru_oflashrainbow(socket, msg) {
     const { count } = msg.data ?? {}
-    let result = unquote(await ozoExec('maru_oflashrainbow', count))
-    console.log('result ' + result)
+    let result = await ozoExec('maru_oflashrainbow', count)
     if (result == 'waiting') {
-        console.log('Result waiting...')
-        OzoStatusChecker.checkInterval(socket, 'maru_oflashrainbow_wait')
+        OzoStatusChecker.addListener(socket, 'maru_oflashrainbow_wait')
     } else {
         return {
             Type: 'maru_oflashrainbow_wait',

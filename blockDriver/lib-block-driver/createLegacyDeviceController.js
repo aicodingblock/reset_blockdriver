@@ -17,6 +17,10 @@ function createLegacyDeviceController() {
     register(c, ozo)
     register(c, codingPack)
     register(c, wiseXboard)
+    c.addCloseHandler(() => {
+        ozo.maru_oallstop()
+    })
+
     return c
 }
 

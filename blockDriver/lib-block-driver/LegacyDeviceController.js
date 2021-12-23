@@ -6,6 +6,7 @@ class LegacyDeviceController {
 
     _gpio = undefined
     _sensor = undefined
+    _onCloseHandlers = []
 
     constructor() {
     }
@@ -67,6 +68,17 @@ class LegacyDeviceController {
             console.warn('error occured:', err)
         }
         return true
+    }
+
+    addCloseHandler(fn) {
+        this._onCloseHandlers.push(fn)
+    }
+
+    async closeResources() {
+        for (let i = 0; i < this._onCloseHandlers.length; i++) {
+            const fn = this._onCloseHandlers[i]
+            await fn()
+        }
     }
 }
 

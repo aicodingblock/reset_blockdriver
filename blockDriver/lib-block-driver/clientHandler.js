@@ -149,6 +149,7 @@ function onNewClient(socket) {
         // 접속자가 없을때 리소스를 닫는다
         if (Object.keys(clientSockets).length === 0) {
             deviceControllerV2.closeResources()
+            legacyDeviceController.closeResources()
         }
     })
 }

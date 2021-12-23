@@ -1,12 +1,10 @@
-const { OzoStatusChecker, ozoExec, unquote } = require("./ozo-util")
+const { OzoStatusChecker, ozoExec } = require("./ozo-util")
 
 async function maru_orestnote(socket, msg) {
     const { duration } = msg.data ?? {}
-    let result = unquote(await ozoExec('maru_orestnote', duration))
-    console.log('result ' + result)
+    let result = await ozoExec('maru_orestnote', duration)
     if (result == 'waiting') {
-        console.log('Result waiting...')
-        OzoStatusChecker.checkInterval(socket, 'maru_orestnote_wait')
+        OzoStatusChecker.addListener(socket, 'maru_orestnote_wait')
     } else {
         return {
             Type: 'maru_orestnote_wait',
