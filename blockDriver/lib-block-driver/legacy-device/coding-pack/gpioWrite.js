@@ -1,13 +1,13 @@
 async function gpioWrite(socket, msg, extra) {
     const { gpio } = extra;
-    const { pin, value = 0} = msg.data ?? {};
+    const { pin, value = 0 } = msg.data ?? {};
 
-    if(typeof pin === 'undefined') {
-        console.log('gpio write invalid param', msg);
-        return
+    if (typeof pin === "undefined") {
+        console.log("gpio write invalid param", msg);
+        return;
     }
 
-    gpio.write(pin,  +value === 1, function (err) {
+    gpio.write(pin, +value === 1, function (err) {
         if (err) {
             //retry
             gpio.setup(pin, gpio.DIR_OUT, function () {
