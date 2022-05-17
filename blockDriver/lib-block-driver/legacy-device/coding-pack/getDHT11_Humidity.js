@@ -13,7 +13,7 @@ async function getDHT11_Humidity(socket, msg, extra) {
             Type: 'ktaimk_get_dht11_humidity_data',
             Data: {
                 ret: true,
-                temp: readout.humidity.toFixed(1),
+                humidity: readout.humidity.toFixed(1),
                 pin,
             }
         }
