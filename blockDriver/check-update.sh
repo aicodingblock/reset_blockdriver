@@ -15,7 +15,7 @@ check_internet
 
 echo "최신 업데이트 코드를 받습니다."
 
-curl -kfsSL https://aicodingblock.kt.co.kr/update/update.sh | sudo bash
+curl -kfsSL https://aicodiny.com/update/update.sh | sudo bash
 
 echo "업데이트를 종료합니다. 아무키나 입력해 주세요"
 read var

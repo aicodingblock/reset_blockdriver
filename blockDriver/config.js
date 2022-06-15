@@ -1,6 +1,7 @@
 const cors = {
     origin: [
-        'https://aicodingblock.kt.co.kr'
+        'https://aicodingblock.kt.co.kr',
+        'https://aicodiny.com',
     ],
     methods: ["GET", "POST"]
 }
