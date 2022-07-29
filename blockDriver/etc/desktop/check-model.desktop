@@ -1,0 +1,14 @@
+#!/usr/bin/env xdg-open
+
+[Desktop Entry]
+Version=1.0
+Encoding=UTF-8
+Type=Application
+Name=Model info
+Name[ko_KR]=모델 정보
+Comment=Model version
+Path=/usr/local/bin/
+Exec=sh /usr/local/bin/aimk-check-model.sh
+Icon=/home/pi/blockcoding/kt_ai_makers_kit_block_coding_driver/blockDriver/etc/checkmodel.ico
+Terminal=true
+X-KeepTerminal=true
