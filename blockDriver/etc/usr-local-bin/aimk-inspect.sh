@@ -22,11 +22,13 @@ esac
 for iface in $(LC_ALL=C nmcli -f DEVICE,STATE device status | grep connected | awk -F ' ' '{print $1}')
 do
     # iface=eth0
-    mac=$(tr < /sys/class/net/${iface}/address -d '[:cntrl:]')
-    conn=$(LC_ALL=C nmcli  -e yes -f DEVICE,CONNECTION device status | grep -w $iface | sed 's/^[^ ]*//' | xargs)
-    conn=$(echo ${conn} | grep -v '\-\-')
-    ip=$(nmcli device show ${iface} | grep IP4.ADDRESS | awk -F ' ' '{print $2}' | awk -F '/' '{print $1}')
-    echo "NET=${iface};${mac};${ip};${conn}"
+    if [ -f /sys/class/net/${iface}/address ];then
+        mac=$(tr < /sys/class/net/${iface}/address -d '[:cntrl:]')
+        conn=$(LC_ALL=C nmcli  -e yes -f DEVICE,CONNECTION device status | grep -w $iface | sed 's/^[^ ]*//' | xargs)
+        conn=$(echo ${conn} | grep -v '\-\-')
+        ip=$(nmcli device show ${iface} | grep IP4.ADDRESS | awk -F ' ' '{print $2}' | awk -F '/' '{print $1}')
+        echo "NET=${iface};${mac};${ip};${conn}"
+   fi
 done
 
 disk=$(df -h | grep '/dev/root' | awk '{print $2,$3,$4,$5}')
