@@ -5,6 +5,7 @@ Version=1.0
 Terminal=true
 Type=Application
 Name=업데이트 코디니팩
+Comment=업데이트 코디니팩
 Exec=sudo /home/pi/blockcoding/kt_ai_makers_kit_block_coding_driver/blockDriver/check-update.sh
 Icon=/home/pi/blockcoding/kt_ai_makers_kit_block_coding_driver/blockDriver/etc/update.ico
 StartupWMClass=crx_nhknbmmkmljkahpjnfhijapcegfdhfbc

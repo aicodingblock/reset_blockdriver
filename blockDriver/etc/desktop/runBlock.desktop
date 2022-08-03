@@ -5,6 +5,7 @@ Version=1.0
 Terminal=true
 Type=Application
 Name=AI블록코딩 실행
+Comment=AI블록코딩 실행
 Exec=sh /home/pi/blockcoding/kt_ai_makers_kit_block_coding_driver/blockDriver/runBlock.sh
 Icon=/home/pi/blockcoding/kt_ai_makers_kit_block_coding_driver/blockDriver/etc/codiny.ico
 StartupWMClass=crx_nhknbmmkmljkahpjnfhijapcegfdhfbc
