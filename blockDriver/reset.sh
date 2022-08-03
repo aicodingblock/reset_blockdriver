@@ -7,7 +7,7 @@ set -e
 
 check_internet(){
     echo "checking internet..."
-    if ping -q -c 1 -W 1 github.com >/dev/null; then
+    if ping -q -c 1 -W 1 google.com >/dev/null; then
         echo "internet connectivity ok"
     else
         echo "인터넷 연결을 확인해주세요"
