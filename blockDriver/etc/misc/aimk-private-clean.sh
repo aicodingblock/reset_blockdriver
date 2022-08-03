@@ -25,6 +25,8 @@ sed -i "s;CLIENT_ID[[:space:]]*=.*$;CLIENT_ID = '';" /home/pi/ai-makers-kit/pyth
 sed -i "s;CLIENT_KEY[[:space:]]*=.*$;CLIENT_KEY = '';" /home/pi/ai-makers-kit/python3/user_auth.py
 sed -i "s;CLIENT_SECRET[[:space:]]*=.*$;CLIENT_SECRET = '';" /home/pi/ai-makers-kit/python3/user_auth.py
 
+echo "* chromium-browser의 캐시를 삭제합니다"
+rm -rf /home/pi/.cache/chromium /home/pi/.config/chromium
 
 echo "* 기타 파일들을 삭제합니다"
 rm -f /home/pi/.bash_history  /home/pi/.python_history /home/pi/.local/share/recently-used.xbel
@@ -45,4 +47,5 @@ history -c
 echo
 echo "pi 사용자의 개인정보를 삭제했습니다."
 echo
+echo "마지막 단계: 브라우저의 홈페이지를 codiny.com으로 변경해주세요"
 echo "마지막 단계: root로 로그인하여 명령어 history를 삭제해주세요"

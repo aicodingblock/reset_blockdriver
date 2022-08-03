@@ -1,10 +1,10 @@
 [Desktop Entry]
 Type=Application
 Encoding=UTF-8
-Name=Check Audio
-Comment=Check that the Genie Kit Audio Input/Output are both working
+Name=Button Off
+Comment=Codinypack arcade switch button monitor stop
 Path=/home/pi/.aicodingblock/bin
 Exec=/home/pi/blockcoding/kt_ai_makers_kit_block_coding_driver/blockDriver/buttonStop.sh
 Icon=/home/pi/blockcoding/kt_ai_makers_kit_block_coding_driver/blockDriver/etc/buttonoff.ico
 Terminal=true
-Name[ko_KR]=Button 실행 끄기
+Name[ko_KR]=버튼 끄기
