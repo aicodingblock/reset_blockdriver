@@ -1,0 +1,12 @@
+[Desktop Entry]
+Version=1.0
+Encoding=UTF-8
+Type=Application
+Name=sdcard expand
+Name[ko_KR]=SD카드 확장
+Comment=SD카드를 확장합니다. 부팅 후 한번만 실행하세요.
+Path=/usr/local/bin/
+Exec=sh /usr/local/bin/aimk-sdcard-expand.sh
+Icon=/home/pi/blockcoding/kt_ai_makers_kit_block_coding_driver/blockDriver/etc/sdcard_expand.ico
+Terminal=true
+X-KeepTerminal=true
