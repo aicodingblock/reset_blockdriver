@@ -30,14 +30,3 @@ cd ${WORK}/blockDriver
 sudo chmod +x *.sh
 
 ./do_reset.sh
-
-echo "remove temp folder"
-cd /home/pi
-rm -rf ${WORK}
-
-echo "재부팅을 시작합니다."
-echo "재부팅 시간은 약 30초입니다."
-echo 
-
-sleep 1
-sudo reboot
