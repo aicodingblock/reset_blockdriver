@@ -21,6 +21,11 @@ check_internet
 cd /home/pi/blockcoding
 sudo rm -rf kt_ai_makers_kit_block_coding_driver/
 git clone -b ${BRANCH} --depth=1 --single-branch https://github.com/aicodingblock/reset_blockdriver.git kt_ai_makers_kit_block_coding_driver
+
+echo "copy inside_python3"
+cp -rf kt_ai_makers_kit_block_coding_driver/inside_python3 /home/pi/ai-makers-kit/
+sudo find /home/pi/ai-makers-kit/inside_python3 -user root -exec chown -R pi:pi {} \;
+
 cd ${WORK}/blockDriver
 sudo chmod +x *.sh
 
