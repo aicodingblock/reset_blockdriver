@@ -89,7 +89,7 @@ sudo ./pi-blaster
 
 echo "remove temp folder"
 rm -rf /home/pi/.tmp.rescue
-rm -rf /home/pi/blockcoding/kt_ai_makers_kit_block_coding_driver
+# rm -rf /home/pi/blockcoding/kt_ai_makers_kit_block_coding_driver
 
 echo 
 echo "===================="
