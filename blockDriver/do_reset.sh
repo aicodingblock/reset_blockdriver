@@ -94,9 +94,3 @@ echo "system reset success!"
 echo "===================="
 echo 
 
-echo "재부팅을 시작합니다."
-echo "재부팅 시간은 약 30초입니다."
-echo 
-
-sleep 1
-sudo reboot
