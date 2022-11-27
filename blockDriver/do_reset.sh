@@ -72,6 +72,8 @@ sudo cp -r ${WORK}/amk/* /home/pi/ai-makers-kit/python3/
 sudo chown -R pi:pi ${WORK}/amk 
 sudo find /home/pi/ai-makers-kit/python3 -user root -exec chown -R pi:pi {} \;
 
+sudo find /home/pi/ai-makers-kit/inside_python3 -user root -exec chown -R pi:pi {} \;
+
 mkdir -p key
 npm install
 
